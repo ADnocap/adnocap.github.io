@@ -1,0 +1,32 @@
+name: Refresh FPL tracker
+
+on:
+  schedule:
+    # Tuesdays 06:15 UTC, after the weekend gameweek has settled (bonus points are final by Monday night)
+    - cron: "15 6 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch public FPL data
+        run: python tools/fetch_fpl.py
+      - name: Commit if changed
+        run: |
+          git config user.name "fpl-tracker[bot]"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet -- data/fpl.json; then
+            echo "no change"
+          else
+            git add data/fpl.json
+            git commit -m "data: refresh FPL tracker"
+            git push
+          fi

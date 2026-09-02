@@ -1,0 +1,119 @@
+<!--
+title: Phantom, distributional return forecasts for 362 cryptocurrencies · Alexandre Dalban
+description: A 31.7M-parameter Transformer that predicts Student-t return distributions for 362 cryptocurrencies at 1 to 30 day horizons, its eight-version ablation, and the self-audit that corrected its published Sharpe ratio.
+section: work
+path: work/phantom/
+scripts: charts
+-->
+<main class="article">
+<p class="kicker">Work · forecasting research</p>
+<h1>Phantom: distributional return forecasts for 362 cryptocurrencies</h1>
+<p class="lede">Does daily price and volume data say anything about which coins will beat their peers over the next month? A little, and it comes with a calibrated distribution. The most useful part of the project was the audit that corrected my own headline.</p>
+
+<dl class="meta">
+  <dt>Dates</dt><dd>Built 1 to 5 April 2026 (eight model versions, paper draft, public release); audited and corrected 24 July 2026</dd>
+  <dt>Status</dt><dd>Backtest research, never traded live; single-author manuscript in preparation</dd>
+  <dt>Role</dt><dd>Solo: data, model, training on an A100 cluster via SLURM, evaluation, paper, audit. Built with Claude Code.</dd>
+  <dt>Code</dt><dd><a href="https://github.com/ADnocap/phantom">github.com/ADnocap/phantom</a>, public, with the v8 checkpoint and data release</dd>
+</dl>
+
+<div class="stats">
+  <div class="stat"><span class="v">0.124</span><span class="l">out-of-sample rank IC at 10 days (Newey-West t = 8.9)</span></div>
+  <div class="stat"><span class="v">15 / 15</span><span class="l">test months with positive IC, January 2025 to March 2026</span></div>
+  <div class="stat"><span class="v">90.3<small>%</small></span><span class="l">of realised returns inside the 90% prediction interval</span></div>
+  <div class="stat"><span class="v">13 → 4.1</span><span class="l">published gross Sharpe before and after my audit; net of costs, 1 to 2 is plausible</span></div>
+</div>
+
+<h2>The question and the model</h2>
+<p>Absolute crypto returns are, as far as this project could tell, unpredictable from price and volume alone (versions 3 and 4 below). Relative returns are a different question: after subtracting the cross-sectional mean each day, is there a signal about which of 362 Binance-listed coins will do better than the others over the next 1 to 30 days? Phantom answers that with a distribution rather than a point: for every coin and every horizon it outputs the location, scale and tail weight of a Student-t.</p>
+<p>The input is 120 days of six engineered channels per coin (log return, intraday range, body ratio, log volume ratio, trailing volatility, 10-day momentum), cut into 24 patches and encoded by an 8-layer pre-norm Transformer (512 dimensions, 8 heads). A 2-layer cross-attention decoder holds 30 learned horizon queries that attend to the encoded history in one pass, and a small MLP maps each decoded vector to (μ, σ, ν). Condition dropout at p = 0.15 and a variance penalty on the encoder stop the decoder from ignoring its input, a collapse I diagnosed in version 5 when ablating the encoder moved the predicted mean by only 0.018. The loss is negative log-likelihood plus 0.5 × CRPS plus a √h-weighted mean-squared term plus the variance penalty. Training is two-stage: pretrain on 413 assets across crypto, equities, FX and commodities, then fine-tune on the 362-coin universe. 31.7 million parameters, one A100, bf16.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/phantom/architecture.png" alt="Block diagram: 120 by 6 OHLCV input, patch embedding into 24 patches, an 8-layer 512-dimensional Transformer encoder, a 2-layer cross-attention decoder fed by 30 horizon embeddings, a Student-t head, and 30 output distributions." width="1600" height="741" loading="lazy">
+  <figcaption>The v8 architecture. The decoder's 30 horizon queries read the encoded 120-day history once and emit one Student-t per horizon. <span class="src">Source: the figure from the manuscript draft; unaffected by the audit.</span></figcaption>
+</figure>
+
+<h2>Out-of-sample results</h2>
+<p>Test window January 2025 to March 2026: 144,630 coin-days over 430 dates, none of them seen in training or validation, with the caveat that windows adjacent to the split share up to 30 days of context. The rank information coefficient (Spearman correlation between predicted and realised relative return across coins, averaged over dates) is 0.124 at the 10-day horizon and rises monotonically with horizon, as a drift signal should against noise that grows with √h.</p>
+
+<figure class="fig">
+  <div class="chart" data-chart="bars" data-src="#ic-horizon"></div>
+  <figcaption>Rank IC by forecast horizon on the test set. It rises from 0.080 at one day to 0.166 at thirty; the across-date standard deviation is 0.14 to 0.20, so the standard error over 430 dates is below 0.01 at every horizon before any overlap correction. <span class="src">Source: evaluation log of the v8 checkpoint.</span></figcaption>
+</figure>
+<script type="application/json" id="ic-horizon">{"categories":["1 day","5","10","15","20","25","30"],"values":[0.0801,0.1121,0.1240,0.1333,0.1496,0.1573,0.1657],"ymin":0,"ymax":0.2,"showValues":true,"ylabel":"Rank IC","xhead":"Horizon","yhead":"Rank IC","label":"Rank IC by forecast horizon","height":260}</script>
+
+<p>The signal is stable in sign, not in size: IC is positive in every one of the 15 test months (the chart on the <a href="../../#work">front page</a>), between 0.037 and 0.200. Sorting coins into deciles by the 10-day forecast gives monotonic realised returns (Spearman 0.99 across deciles, 1.00 across quintiles), with the bottom decile losing 2.45% and the top gaining 1.22% per 10-day window on average.</p>
+
+<figure class="fig">
+  <div class="chart" data-chart="bars" data-src="#deciles"></div>
+  <figcaption>Mean realised relative return per 10-day holding window by forecast decile, D1 lowest to D10 highest. The ordering holds but the payoff is asymmetric: most of the spread is the bottom decile, which is also the hardest to short. <span class="src">Source: publication analysis of the v8 checkpoint; standard errors 0.08 to 0.15 percentage points.</span></figcaption>
+</figure>
+<script type="application/json" id="deciles">{"categories":["D1","D2","D3","D4","D5","D6","D7","D8","D9","D10"],"values":[-2.453,-0.534,-0.248,-0.225,0.196,0.170,0.339,0.625,0.871,1.215],"unit":"%","showValues":true,"ylabel":"Mean return per 10-day window","xhead":"Decile","yhead":"Return per 10-day window","label":"Decile portfolio returns","height":260}</script>
+
+<p>The distributional part holds up: the 50, 80, 90 and 95% prediction intervals contain 47.7, 79.2, 90.3 and 95.7% of realised 10-day returns, the probability integral transform is close to uniform, and the model drives ν to about 2, which is to say it learned that crypto returns have very heavy tails and priced them.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/phantom/distributional.png" alt="Three panels: a near-uniform PIT histogram at the 10-day horizon, a coverage calibration curve tracking the diagonal, and predicted sigma rising with horizon roughly as the square root of the horizon." width="1800" height="529" loading="lazy">
+  <figcaption>Distributional diagnostics at the 10-day horizon: PIT histogram, coverage against nominal level, and predicted scale by horizon against a √h reference. <span class="src">Source: manuscript figure; calibration metrics are not annualised and were unaffected by the audit.</span></figcaption>
+</figure>
+
+<h3>Against the baselines, honestly</h3>
+<p>Phantom has the highest IC among the directional baselines I built (momentum, mean reversion, volume, random). A naive low-volatility sort has a higher raw IC, 0.165, and is 0.63 rank-correlated with Phantom's signal. Phantom's independent contribution is significant only within the mid- and high-volatility terciles (spread t-statistics 2.6 and 4.1), and the two signals combined reach IC 0.157. That is the accurate description and the one in the README.</p>
+
+<figure class="fig">
+  <div class="chart" data-chart="hbars" data-src="#baselines"></div>
+  <figcaption>Rank IC at the 10-day horizon, Phantom against simple baselines on the same test set. The low-volatility sort beats it on raw IC. <span class="src">Source: manuscript baseline table, post-audit.</span></figcaption>
+</figure>
+<script type="application/json" id="baselines">{"categories":["Low volatility sort","Phantom","Mean reversion, 1 day","Mean reversion, 5 days","Random","Momentum, 5 days","Momentum, 10 days","Momentum, 20 days","Volume, 5 days"],"values":[0.165,0.124,0.009,0.007,0.001,-0.007,-0.012,-0.016,-0.046],"highlight":[1],"labelWidth":170,"xhead":"Signal","yhead":"Rank IC (10d)","label":"Rank IC of Phantom versus baselines"}</script>
+
+<h2>The audit</h2>
+<div class="callout">
+  <div class="t">Retracted, 24 July 2026</div>
+  The April release reported a long-short Sharpe of 11.8 to 13.0, a 925% annualised return, a "74.7% daily win rate" and a 336 basis-point break-even cost. The long-short series was made of overlapping 10-day returns sampled daily and I had annualised it as if each observation were a day, which inflates Sharpe by about √10. Corrected: gross, horizon-corrected Sharpe about 4.1 (an upper bound), about 93% annualised gross, break-even about 34 basis points one way, and 74.7% is the share of positive 10-day windows.
+</div>
+<p>I found this three months after publishing, while preparing the work for applications, by asking what the number should have been if I recomputed it from scratch on non-overlapping windows. The same pass documented that the universe is survivor-biased (only pairs still trading in March 2026 were fetched, so coins delisted during the test period are missing from training, testing and from the cross-sectional mean itself), that the short leg is partly unimplementable in the bottom decile, and that the Newey-West lag I used under-corrects for the MA(9) overlap; conservative lags still leave the IC t-statistic above 6. README, paper draft, experiment log and evaluation code were all corrected, with the old numbers left visible as errata rather than deleted.</p>
+<p>After realistic frictions I consider a net Sharpe of 1 to 2 plausible. The cost table below is the corrected one; the figures in the repository's plots directory were generated before the audit and still carry the old labels, which is why this page re-plots the data instead of embedding them.</p>
+
+<div class="scroll">
+<table class="tbl">
+  <tr><th>Scenario</th><th class="n">One-way cost</th><th class="n">Gross/net Sharpe, horizon-corrected</th></tr>
+  <tr><td>Gross</td><td class="n">0 bps</td><td class="n">≈ 4.1</td></tr>
+  <tr><td>Standard exchange fee</td><td class="n">10 bps</td><td class="n">≈ 2.9</td></tr>
+  <tr><td>Conservative</td><td class="n">30 bps</td><td class="n">≈ 0.4</td></tr>
+  <tr><td>Break-even</td><td class="n">≈ 34 bps</td><td class="n">0</td></tr>
+  <caption>Equal-weighted decile long-short, 10-day holding, quintile-membership turnover 37.8% per day, survivor-biased universe. All figures are upper bounds.</caption>
+</table>
+</div>
+
+<h2>Eight versions, mostly failures</h2>
+<p>The project was structured as an ablation, and the experiment log records each version's hypothesis and result. Five of the eight versions were negative.</p>
+<div class="scroll">
+<table class="tbl">
+  <tr><th>Version</th><th>Change</th><th class="n">IC (10d)</th><th class="n">Sharpe, corrected</th><th>Finding</th></tr>
+  <tr><td>v1, v2</td><td>Pretrain on synthetic SDE paths (GBM, Merton, Kou, Bates, GARCH)</td><td class="n"></td><td class="n"></td><td>Reached the oracle CRPS on synthetic data (0.064 versus 0.065 theoretical); transferred nothing to real assets.</td></tr>
+  <tr><td>v3</td><td>Pretrain on real multi-asset data</td><td class="n">0.00</td><td class="n"></td><td>Well-calibrated uncertainty, no directional signal.</td></tr>
+  <tr><td>v4</td><td>Multi-horizon absolute returns</td><td class="n">0.00</td><td class="n"></td><td>Memorised training directions, did not generalise.</td></tr>
+  <tr><td>v5</td><td>Predict cross-sectionally demeaned returns</td><td class="n">0.09</td><td class="n">≈ 1.5</td><td>Signal unlocked; concentrated in crypto (IC 0.144) versus commodities 0.084, FX 0.007, equities 0.003.</td></tr>
+  <tr><td>v6</td><td>Add funding-rate and taker-buy features; crypto-only fine-tune</td><td class="n">0.14</td><td class="n">≈ 1.7</td><td>The features added under 0.002 IC each; the gain came from training on crypto only.</td></tr>
+  <tr><td>v7</td><td>4-hour bars</td><td class="n">0.10</td><td class="n">≈ 0.8</td><td>Worse: adjacent windows share 99.7% of their bars, so 476k "samples" are about 80k daily windows.</td></tr>
+  <tr class="best"><td>v8</td><td>Widen from 60 to 362 coins</td><td class="n">0.12</td><td class="n">≈ 4.1</td><td>Breadth diversified the long-short portfolio while mean IC fell slightly from v6.</td></tr>
+  <caption>Sharpe ratios are gross, equal-weighted, survivor-biased and horizon-corrected; the pre-audit values in the log were about √10 larger.</caption>
+</table>
+</div>
+
+<h2>Could it be traded? A binary-option test</h2>
+<p>A two-day follow-up asked whether the same distributions price Polymarket's daily "BTC above $X" markets better than the market does. On 7,982 resolved BTC and ETH markets from August 2025 to March 2026, with each side's price read from its own order book, the model's probabilities were better calibrated than the ask price at four to six days to expiry (root-mean-square calibration error 0.035 against the market's 0.068) and overconfident by about five points at two to three days, which set a minimum-horizon rule. Buying the side with edge and holding to settlement, with entry prices between 0.15 and 0.85, a 20% edge cap and ETH range markets excluded, turned $1,000 into $3,885 in the 7-month backtest (68% win rate, 1,120 trades, weekly Sharpe 2.05, drawdown −48%).</p>
+<p>The caveats are large enough that I present this as a calibration result, not a strategy: one seven-month window during which BTC fell about 42% while the strategy was structurally short BTC (it mostly buys NO on "above" markets); fills assumed at the full displayed ask; positions valued at cost until settlement; and, most instructively, the same signals executed as mid-price limit orders lost money (win rate 67% to 54%, ending at $787) because of adverse selection. An uncapped variant of the run reaches $4,714; I quote the capped one because the cap is in the documented parameters.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/phantom/polymarket_calibration.webp" alt="Six calibration panels comparing the model (blue circles) and the Polymarket ask price (orange diamonds) against the diagonal, by days to expiry 2 to 3, 4 to 6 and 7 to 14, before and after a settlement-time adjustment. The model tracks the diagonal better at 4 or more days and is overconfident at 2 to 3 days." width="1800" height="1087" loading="lazy">
+  <figcaption>Model versus market calibration on Polymarket BTC and ETH daily binaries by days to expiry (top: raw horizons, bottom: horizons adjusted to the 5 pm UTC settlement). At four days and beyond the model is closer to the diagonal than the ask; at two to three days it is overconfident. <span class="src">Source: the follow-up repository's calibration analysis, 6 April 2026.</span></figcaption>
+</figure>
+
+<h2>What I would do differently</h2>
+<ul>
+  <li>Fetch the universe as of each date, including delisted pairs, before training anything. Survivorship is the largest unquantified bias here and the fix is a data-collection choice.</li>
+  <li>Evaluate on non-overlapping windows first and let the overlapping series be the supplementary view. The √10 error could not have happened in that order.</li>
+  <li>Compare against the low-volatility sort on day one. It is the obvious benchmark for a relative-return signal in crypto and it should have framed the result from the start.</li>
+</ul>
+</main>

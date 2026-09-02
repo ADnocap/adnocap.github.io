@@ -1,0 +1,65 @@
+<!--
+title: About · Alexandre Dalban
+description: Education, experience, skills and contact details for Alexandre Dalban, MSc AI student at CentraleSupélec and applied AI research intern at Siemens.
+section: about
+path: about/
+-->
+<main class="article about">
+<p class="kicker">About</p>
+<h1>Alexandre Dalban</h1>
+<p class="lede">Builder-researcher: I take a prediction problem from data to a model to something running, then hold the result to the same standard as the experiment.</p>
+
+<p>I am finishing an MSc in Artificial Intelligence at CentraleSupélec in Paris and spending the final months of it as an applied AI research intern at Siemens in Munich. Before the MSc I studied mathematics and computer science at Boston College, and spent two summers doing alpha research at a systematic equity hedge fund in London. Outside those, I built and ran a live prediction-market trading system, trained a distributional forecaster for cryptocurrencies, fine-tuned an 8B language model for reliability engineering, and placed 458th of 18,803 teams in IMC's Prosperity 4 trading competition. The <a href="../">front page</a> lists all of it with dates and results.</p>
+
+<p>Two things I care about: research that ends up running (the point of a forecast is a decision), and results that survive their own audit. I use Claude Code heavily and deliberately, with custom skills in most of my repositories, which is a large part of how one person ships a production rewrite in a few days.</p>
+
+<p><b>Availability.</b> Full-time roles from November 2026, in London, the United States or the EU (Paris, Amsterdam, Zurich, Munich). Also open to research residencies and fellowships. US and EU citizen with UK settled status: full working rights in all three, no sponsorship needed. French and English, both native.</p>
+
+<h2>Education</h2>
+<div class="cvline"><span><b>CentraleSupélec</b>, MSc in Artificial Intelligence (M2)</span><span class="where">Paris · Sept 2025 – Nov 2026</span></div>
+<p>Core: machine learning, optimisation for ML, big data for AI (Apache Spark), deep learning, foundations of AI, decision modelling. Electives: AI for finance, stochastic optimisation, advanced deep learning, reinforcement learning, ensemble learning, machine learning in network science. Supervised research project on a <a href="../work/reliability-llm/">domain-specific LLM for reliability engineering</a> with Dr. Zhiguo Zeng (LGI laboratory); paper in preparation. First place in the school's GreenAI hackathon.</p>
+
+<div class="cvline"><span><b>Boston College</b>, BS in Mathematics and Computer Science</span><span class="where">Boston · Aug 2021 – May 2025</span></div>
+<p>Mathematics: learning theory, probability, statistics, mathematical logic. Computer science: computer systems, algorithms, machine learning, deep learning, natural language processing, object-oriented design. Course research project TensorTalk (zero-shot voice cloning), team of four, first author.</p>
+
+<h2>Experience</h2>
+<div class="cvline" id="siemens"><span><b>Applied AI Research Intern</b>, Siemens AG</span><span class="where">Munich · May 2026 – Nov 2026</span></div>
+<ul>
+  <li>Automating a manual step in manufacturing (CAD to CAM): a model that detects machinable features such as holes, pockets and slots on 3D part designs, replacing work currently done by hand. Self-supervised learning on sampled point clouds, building on Meta's Sonata and Xiaomi's Utonia.</li>
+  <li>Graph neural networks for classification.</li>
+  <li>The current approach reaches about 95% panoptic quality on the MFInstSeg benchmark, on par with the state of the art.</li>
+</ul>
+
+<div class="cvline" id="lecap"><span><b>Quantitative Finance Intern</b>, LeCap Asset Management (hedge fund)</span><span class="where">London · Summers 2024 and 2025</span></div>
+<ul>
+  <li>Researched and validated 100+ alpha signals for a systematic equity portfolio strategy, supporting portfolio construction.</li>
+  <li>Built production Python tooling for the live trading environment, including an automated weekly reporting system evaluating 150+ signals across 8 performance metrics, replacing manual analysis.</li>
+  <li>Built a supervised forecasting pipeline from classical models through transformer architectures, trained on 90 proprietary indicators and Axioma factor-residualised returns across the top 1,000 North American equities; the best model reached 54% daily directional accuracy against a coin-flip baseline near 50%.</li>
+  <li>Developed PPO reinforcement-learning agents rewarded on rolling 5-, 10- and 20-day realised Sharpe and P&L, producing dynamic indicator weightings for a composite prediction signal.</li>
+  <li>Invited back for a second summer.</li>
+</ul>
+
+<h2>Selected results</h2>
+<ul>
+  <li><a href="../work/polymarket/">Live trading system on Polymarket</a>, co-built and run on personal capital, February to June 2026, wound down deliberately; two documented postmortems.</li>
+  <li><a href="../work/phantom/">Phantom</a>: out-of-sample rank IC 0.124 at 10 days across 362 cryptocurrencies, self-audited in July 2026; manuscript in preparation.</li>
+  <li><a href="../work/reliability-llm/">Reliability-engineering LLM</a>: +18.6 percentage points on a 866-question benchmark built from 56 seeds (joint work; paper in preparation).</li>
+  <li><a href="../work/imc-prosperity/">IMC Prosperity 4</a>: rank 458 of 18,803 teams, Finalist Crew, April 2026 (team of three).</li>
+  <li>HackEurope, February 2026: second place in the Solana challenge with DeFi Sentinel (team of three).</li>
+  <li>CentraleSupélec GreenAI hackathon: first place.</li>
+</ul>
+
+<h2>Skills</h2>
+<div class="skills">
+  <p><b>Languages</b> Python (advanced, daily); Rust (working: a Monte Carlo market simulator); Java (basic).</p>
+  <p><b>Deep learning</b> PyTorch, Transformers and attention, self-supervised and generative models, time-series and distributional forecasting (Student-t heads, CRPS), graph neural networks.</p>
+  <p><b>LLM post-training</b> QLoRA and Unsloth, GRPO with verifiable rewards, DPO, Self-Instruct style synthetic data with cross-model verification, evaluation design.</p>
+  <p><b>Reinforcement learning</b> PPO, MaskablePPO, MCTS, GRPO; Gymnasium and stable-baselines3.</p>
+  <p><b>Quantitative research</b> Alpha research and signal evaluation, factor residualisation (Axioma), walk-forward validation, deflated Sharpe and overfitting controls, binary-option pricing, market microstructure (L2 books, order-flow imbalance, maker versus taker economics).</p>
+  <p><b>Systems</b> asyncio and aiohttp services, FastAPI, Redis Streams, Postgres and SQLite, DuckDB and Parquet, Docker, systemd deployments, SLURM on A100 clusters, LightGBM, Optuna, MILP with PuLP/CBC.</p>
+  <p><b>Tooling</b> Git, Linux, LaTeX, Claude Code (custom skills for research pipelines, deploys and diagnostics).</p>
+</div>
+
+<h2>Contact</h2>
+<p><a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a> · <a href="https://github.com/ADnocap">github.com/ADnocap</a> · <a href="https://www.linkedin.com/in/alexdalban">linkedin.com/in/alexdalban</a> · <a href="../assets/Alexandre_Dalban_CV.pdf">one-page CV (PDF)</a>. References available on request.</p>
+</main>

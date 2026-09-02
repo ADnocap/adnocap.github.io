@@ -1,0 +1,41 @@
+{
+ "updated_utc": "2026-09-02T18:05:04Z",
+ "season": "2026/27",
+ "entry_id": 8737706,
+ "team_name": "Claude FC",
+ "overall_points": 139,
+ "overall_rank": 3345863,
+ "total_players": 10322603,
+ "gameweeks_finished": 2,
+ "gameweeks": [
+  {
+   "gw": 1,
+   "points": 40,
+   "total": 40,
+   "rank": 7094513,
+   "gw_rank": 7094525,
+   "transfers": 0,
+   "hit": 0,
+   "bench": 2,
+   "value": 1000,
+   "average": 50,
+   "highest": 131,
+   "chip": null
+  },
+  {
+   "gw": 2,
+   "points": 99,
+   "total": 139,
+   "rank": 3345863,
+   "gw_rank": 1737185,
+   "transfers": 0,
+   "hit": 0,
+   "bench": -1,
+   "value": 1001,
+   "average": 81,
+   "highest": 161,
+   "chip": null
+  }
+ ],
+ "source": "fantasy.premierleague.com public API (entry history + bootstrap-static)"
+}

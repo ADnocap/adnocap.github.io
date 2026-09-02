@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A live trading system for Polymarket's 15-minute crypto markets · Alexandre Dalban</title>
+<meta name="description" content="A multi-strategy trading system co-built and run live on Polymarket in 2026, with the favourite-press strategy's verified live results, two postmortems, and the fail-closed rewrite that followed.">
+<meta property="og:title" content="A live trading system for Polymarket's 15-minute crypto markets · Alexandre Dalban">
+<meta property="og:description" content="A multi-strategy trading system co-built and run live on Polymarket in 2026, with the favourite-press strategy's verified live results, two postmortems, and the fail-closed rewrite that followed.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://adnocap.github.io/work/polymarket/">
+<link rel="canonical" href="https://adnocap.github.io/work/polymarket/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23161616'/%3E%3Cpath d='M6 24 L13 9 L20 24 M9 19 h8 M22 14 h5 M22 19 h5' stroke='%23fbfbf9' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
+</head>
+<body>
+<header class="site-head">
+  <a class="brand" href="../../">Alexandre Dalban</a>
+  <nav aria-label="Site">
+    <a href="../../#work" aria-current="page">Work</a>
+    <a href="../../log/">Log</a>
+    <a href="../../about/">About</a>
+  </nav>
+</header>
+<main class="article">
+<p class="kicker">Work · trading</p>
+<h1>A live trading system for Polymarket's 15-minute crypto markets</h1>
+<p class="lede">Co-built with a collaborator, run on personal capital from February to June 2026, then wound down to make room for research. The two postmortems are the part worth reading.</p>
+
+<dl class="meta">
+  <dt>Dates</dt><dd>December 2025 to June 2026; live from late January, hub/worker architecture live from 28 March, wound down in June</dd>
+  <dt>Status</dt><dd>Wound down. Nothing described here is running.</dd>
+  <dt>Role</dt><dd>Joint project. I wrote most of the research code and most of the production system; my collaborator led two of the strategies, the fill reconciliation and the exchange-API migration.</dd>
+  <dt>Scale</dt><dd>Personal capital: the wallet held about $1,650 in USDC when the hub went live. This is not a fund track record.</dd>
+  <dt>Code</dt><dd>Private repositories; a walkthrough is available on request. The <a href="https://polymarket.com/profile/0x025fd03ff0c913876dfca293fd2bcded014225cf">exchange account</a> is public.</dd>
+</dl>
+
+<div class="stats">
+  <div class="stat"><span class="v">3,037</span><span class="l">live trades settled by the favourite-press strategy in 18 days</span></div>
+  <div class="stat"><span class="v">78.0<small>%</small></span><span class="l">realised win rate, reconciled against on-chain fills</span></div>
+  <div class="stat"><span class="v">+$383</span><span class="l">verified P&amp;L over those 18 days, after the dashboard's +$549 was corrected</span></div>
+  <div class="stat"><span class="v">9.5 → 0.85</span><span class="l">backtest Sharpe of a strategy before and after fixing a look-ahead leak</span></div>
+</div>
+
+<h2>The market</h2>
+<p>Polymarket lists a binary market every fifteen minutes for each of BTC, ETH, SOL and XRP: will the price be up or down at settlement? Each contract pays $1 or $0. The order books for Up and for Down are separate, so the two asks need not sum to one, and the 15-minute cadence means a strategy settles a few hundred times a day. That volume is the attraction: hypotheses get answered in days rather than quarters.</p>
+<p>The edge we spent most of our time on is the oldest one in binary markets. Ten minutes before settlement, across 10,113 collected markets, the side priced at 0.80 wins about 84% of the time and the side priced at 0.20 wins about 12%: favourites are underpriced and longshots overpriced. Figure 1 is that calibration curve. Whether the mispricing survives a 0.65 to 0.95 entry, exchange fees and the queue is the question the rest of the page answers.</p>
+
+<figure class="fig">
+  <img src="../../assets/fig/polymarket/calibration_tte_10m.png" alt="Calibration curve of Polymarket 15-minute Up/Down markets ten minutes before settlement: realised probability of Up against the implied probability from the Up ask. The curve is S-shaped around the diagonal." width="1050" height="1050" loading="lazy">
+  <figcaption>Implied versus realised probability of Up, ten minutes before settlement, on 10,113 collected 15-minute markets (all four assets). Brier score 0.127. Favourites above 0.6 are underpriced, longshots below 0.4 overpriced; bin counts are printed above each point. <span class="src">Source: order-book snapshots we collected in March and April 2026, analysed 12 April 2026.</span></figcaption>
+</figure>
+
+<h2>The strategies</h2>
+<p>Six strategy families were researched; three families traded live for more than a day. Backtest numbers are labelled as such. Every backtest Sharpe on this page is a per-trade ratio on binary payoffs, not an annualised figure, and should not be compared with equity-strategy Sharpes.</p>
+<div class="scroll">
+<table class="tbl min">
+  <tr><th>Strategy</th><th>Idea</th><th>Evidence</th><th>Outcome</th></tr>
+  <tr><td><b>S5</b> favourite press</td><td>Buy the higher-priced side of a 15-minute market 5 to 15 minutes before settlement, when its ask is between 0.65 and 0.95 and the two asks sum to less than 1.15; hold to settlement.</td><td>Live, 10 to 28 April: 3,037 trades, 78.0% win rate, +$383 on-chain verified, +0.80% per rolled dollar.</td><td>Traded live; the only strategy with a verified live profit.</td></tr>
+  <tr><td><b>S5</b> on 5-minute markets</td><td>Same rule on the 5-minute cadence.</td><td>Live: 216 trades, 71.3% win rate, <span class="neg">−$494</span>, despite positive backtests.</td><td>Disabled. <a href="#postmortem-2">Postmortem 2.</a></td></tr>
+  <tr><td><b>S6</b> machine-learned gate</td><td>Trade S5 signals only when a LightGBM model's expected value clears 5%: 102 features from the order book, its trajectory, Binance candles and on-chain flow.</td><td>Walk-forward backtest 81.0% win rate; live on 5-minute markets: 288 trades, +$4.61.</td><td>Flat live; repurposed to 15-minute markets, XRP dropped for miscalibration.</td></tr>
+  <tr><td><b>S1</b> streak reversal</td><td>After three to five same-direction outcomes in a row, the next 5-minute market reverses 53 to 57% of the time while opening prices stay near 50/50. Post-only maker orders.</td><td>Out-of-sample backtest: 2,745 trades, 53.2% win rate, +$64; the same trades executed as taker lose $95.</td><td>Researched; the edge is smaller than the taker fee, so maker-only or nothing.</td></tr>
+  <tr><td><b>S4</b> model-priced daily markets</td><td>Price 4- to 30-day above/below markets with the <a href="../phantom/">Phantom</a> forecaster's Student-t distribution and buy the side with edge.</td><td>Backtest only, August 2025 to March 2026: 1,118 trades, 67% win rate, weekly Sharpe 2.2, maximum drawdown −36% with delta-aware sizing.</td><td>21 live executions in April; no live result worth reporting.</td></tr>
+  <tr><td><b>S7</b> at-the-money strike</td><td>Hourly "above $X" markets, entered 15 minutes before settlement at the strike nearest the spot price.</td><td>Backtest Sharpe 9.5 with the leak, 0.85 without it.</td><td>Never traded. <a href="#postmortem-1">Postmortem 1.</a></td></tr>
+  <tr><td><b>S8</b> 4-hour favourite press</td><td>Favourite press on 4-hour markets with an order-book-imbalance filter (my collaborator's research).</td><td>Backtest, October 2025 to April 2026: 754 trades, 91.8% win rate, +7.8% return on stake, in-sample and out-of-sample splits agree.</td><td>Added in April; no separate live tally survives.</td></tr>
+</table>
+</div>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/polymarket/winrate_heatmap.png" alt="Heatmap of realised win rate by favourite ask price (rows, 50 to 95 percent) and minutes into the 15-minute window (columns), from 882 markets. Green above 0.65 and after the first minute, red near 50 percent." width="1800" height="800" loading="lazy">
+  <figcaption>Realised win rate of buying the favourite, by its ask price and by how far into the 15-minute window the entry happens, on 882 tick-level markets with one cent of assumed slippage. The green region above 0.65 is the S5 entry gate; the bottom rows show why buying near-coin-flips loses after fees. <span class="src">Source: tick-level order-book replay, 13 April 2026.</span></figcaption>
+</figure>
+
+<h2>The system</h2>
+<p>The first generation, written in December and January, was a monolith: a cross-venue matcher (sentence embeddings and a language model to pair equivalent markets across exchanges), a Deribit-priced fair-value engine for daily BTC and ETH markets, and an executor that placed its first live orders on 23 January. It was retired in March for a hub-and-worker design that we ran until June.</p>
+<aside class="note"><b>Data engineering.</b> The tick-level research used the pmxt Polymarket order-book archive (CC BY 4.0): hourly Parquet files of 500 to 900 MB, about 37 million rows each. Six DuckDB workers read them over HTTP with predicate pushdown on the market IDs we needed, after resolving those IDs through the exchange's metadata API at about 200 requests per second. The February to April extract was 50 to 80 GB.</aside>
+<ul>
+  <li><b>Hub.</b> A FastAPI process that owns the strategy registry, the state aggregator, a WebSocket that broadcasts state to the dashboard once a second, and an IPC server. Persistence is SQLite in write-ahead mode: positions, executions, wallet snapshots, an activity log.</li>
+  <li><b>Workers.</b> One subprocess per strategy, talking to the hub over newline-delimited JSON on a local TCP socket, with a five-second heartbeat, a fifteen-second timeout and exponential-backoff restarts. A strategy that crashes restarts alone; the others keep trading.</li>
+  <li><b>Dashboard.</b> React and TypeScript, served behind Caddy: P&amp;L, win rate and inventory by strategy, a discovery view and the logs. About 6,700 lines.</li>
+  <li><b>Research pipeline.</b> Encoded as Claude Code skills, including an eight-step research procedure with two hard gates: no backtest before a statistical validation has passed, no capacity estimate before robustness checks have. Execution rules were written down once and enforced everywhere: buying means paying the ask; the Up and Down books are independent; backtests never assume limit-order fills.</li>
+</ul>
+<p>The production tree was about 20,000 lines of Python and 6,700 of TypeScript, 505 commits, on a small cloud server. I authored the large majority of it.</p>
+
+<h2>What happened live</h2>
+<p>The hub went live on 28 March with three strategies on a different market type (negative-risk multi-outcome markets): a dispersion trade, an Avellaneda-Stoikov market maker with a regime switch on order-flow toxicity, and a tail-theta position. In eleven days the market maker lost $168.64 and the others roughly broke even; all three were retired on 9 April when S5 and S6 replaced them.</p>
+<p>S5 traded from 9 April. An execution audit over its first eleven days (2,527 intended buys, 95.4% filled, median signal-to-fill latency 4.31 seconds) found that price slippage was slightly favourable and that the realised win rate, 78.2% with a 95% interval of 76.5 to 79.8%, was significantly above the backtest's 75.6% (binomial z = 3.02). The implementation shortfall came from failed and partial fills, not from prices. Figure 3 shows those days.</p>
+
+<figure class="fig">
+  <div class="chart" data-chart="bars" data-src="#s5-daily"></div>
+  <figcaption>S5 settled P&amp;L per day over the first live window, 9 to 20 April 2026 (the last day is partial), from the execution audit. Eleven of twelve days positive; the two negative days are small. <span class="src">Source: the strategy's slippage audit against the exchange's fill records, 20 April 2026.</span></figcaption>
+</figure>
+<script type="application/json" id="s5-daily">{"categories":["Apr 9","Apr 10","Apr 11","Apr 12","Apr 13","Apr 14","Apr 15","Apr 16","Apr 17","Apr 18","Apr 19","Apr 20"],"values":[-2.86,134.54,93.00,96.97,128.81,17.19,3.42,103.53,28.86,66.26,146.28,-14.96],"unit":"","ylabel":"Settled P&L per day, USD","xhead":"Day","yhead":"P&L (USD)","label":"S5 daily settled P&L, 9 to 20 April 2026","height":280}</script>
+
+<p>Then the second half of April happened. The dashboard's cumulative curve (Figure 4) peaked near +$800 and gave back a third of it, almost all of it on ETH, which lost $194 over the window while XRP made $466 and SOL $261. The month-end reconciliation found something else: the dashboard had been counting partial fills that never completed. Against the on-chain record, S5's result from 10 to 28 April was +$383 on 3,037 trades, a 78.0% win rate and +0.80% per dollar rolled, not the +$549 on screen. Slippage over all 3,037 trades summed to $3.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/polymarket/s5_live_cumulative_pnl.png" alt="S5 cumulative live P&L by asset from 10 to 28 April 2026, with a drawdown panel. Total peaks near 800 dollars and ends near 550; ETH ends negative; maximum drawdown 311 dollars." width="1440" height="1080" loading="lazy">
+  <figcaption>S5 cumulative live P&amp;L by asset, 10 to 28 April 2026, as the dashboard recorded it, with drawdown below. The +$549 total in the legend is dashboard accounting; the on-chain reconciled figure for the same window is +$383. Maximum drawdown $311 on a wallet of roughly $1,650. <span class="src">Source: live-performance analysis script run by my collaborator in June 2026 on the April fills.</span></figcaption>
+</figure>
+
+<figure class="fig">
+  <div class="chart" data-chart="dots" data-src="#s5-buckets"></div>
+  <figcaption>Where the live edge was: realised win rate against the break-even win rate implied by the entry price, per ask bucket, over the first eleven live days (n = 760, 872, 556 and 238). The 0.80 to 0.90 bucket sat exactly at break-even; the strategy's profit came from the two ends. <span class="src">Source: the same execution audit; Wilson 95% intervals are in the data table.</span></figcaption>
+</figure>
+<script type="application/json" id="s5-buckets">{"categories":["ask 0.65–0.70","ask 0.70–0.80","ask 0.80–0.90","ask 0.90–0.95"],"before":[67.2,74.4,84.2,92.3],"after":[68.8,77.5,83.8,97.9],"names":["break-even win rate","realised win rate"],"unit":"%","xhead":"Entry ask bucket","label":"Realised versus break-even win rate by entry price"}</script>
+
+<p>By May the exchange had migrated its order API and we spent the last engineering commits on fee accounting. The tuning memo written at that point recommended dropping ETH, tightening the sum-of-asks filter to 1.02 and trading only the 10 to 15 minute entry window, and prescribed a two-week verification period before scaling. We did not run that verification: the MSc, the internship and the research were taking the time, and the honest reading of the numbers was a small, real, fragile edge on a small wallet. We stopped.</p>
+
+<figure class="fig wide">
+  <div class="chart" data-chart="pnl" id="pm-pnl-chart"></div>
+  <figcaption>Cumulative profit and loss for the wallet as reported by Polymarket's public profile, December 2025 to September 2026, one point per day. This is wallet-level: it includes the first-generation system, every strategy above, the June pilots and any other activity on the shared wallet, and it is the exchange's mark, not ours. <span id="pm-pnl-summary"></span> <span class="src">Source: Polymarket's public P&amp;L endpoint for the account, snapshot taken 2 September 2026.</span></figcaption>
+</figure>
+
+<h2 id="postmortem-1">Postmortem 1: fifteen minutes of look-ahead</h2>
+<p>In April we researched an hourly strategy: at fifteen minutes before settlement, find the "above $X" market whose strike sits nearest the spot price and trade its favourite. The first backtest was spectacular, 98.8% win rate, +8.3% return on stake and a per-trade Sharpe of 9.5, and that is exactly what made us look again.</p>
+<p>The bug was one function argument. The helper that fetched the spot price to choose the strike was called with the settlement time rather than the entry time, so the backtest picked its strike knowing where the price would end up. Fifteen minutes of drift in BTC is enough to turn a coin flip into a near-certainty. With the entry-time price the strategy still wins 94.5% of its trades, because favourites near settlement usually do, but the losses are about fifteen times the size of the wins: over 696 trades the corrected backtest makes $85 at 25 contracts a trade, a 0.52% return on stake, a per-trade Sharpe of 0.85 and a $155 drawdown. Figure 7 is the corrected curve; the table is the before and after.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/polymarket/s7_equity_postfix.png" alt="Corrected S7 backtest: cumulative P&L over 696 trades climbing to about 190 dollars then decaying to about 85, with drawdown shading, and a scatter of per-trade P&L showing many small wins and a few losses near minus 20 dollars." width="1600" height="1028" loading="lazy">
+  <figcaption>The at-the-money strike strategy after the fix: 696 trades from August 2025 to April 2026, 94.5% win rate, +0.5% return, per-trade Sharpe 0.85. The lower panel is why a 94.5% win rate nets nothing: wins of a few dollars, losses of $15 to $25. <span class="src">Source: corrected backtest, 12 April 2026. The strategy was my collaborator's; the bug hunt and this write-up were joint.</span></figcaption>
+</figure>
+
+<div class="scroll">
+<table class="tbl">
+  <tr><th></th><th class="n">Win rate</th><th class="n">Return on stake</th><th class="n">Per-trade Sharpe</th><th class="n">Trades</th></tr>
+  <tr><td>Backtest with the settlement-time price (the leak)</td><td class="n">98.8%</td><td class="n">+8.3%</td><td class="n">9.5</td><td class="n">696</td></tr>
+  <tr class="best"><td>Backtest with the entry-time price</td><td class="n">94.5%</td><td class="n">+0.52%</td><td class="n">0.85</td><td class="n">696</td></tr>
+</table>
+</div>
+
+<figure class="fig">
+  <div class="chart" data-chart="bars" data-src="#s7-monthly"></div>
+  <figcaption>The corrected strategy month by month, at 25 contracts per trade. Four of nine months lose; the profitable months are the two with the most trades. Not a strategy, and it never traded. <span class="src">Source: corrected backtest results file, April 2026.</span></figcaption>
+</figure>
+<script type="application/json" id="s7-monthly">{"categories":["Aug 25","Sep","Oct","Nov","Dec","Jan 26","Feb","Mar","Apr"],"values":[38.49,111.83,-20.30,38.86,-56.37,2.37,7.87,0.06,-38.13],"ylabel":"Monthly P&L, USD, corrected backtest","xhead":"Month","yhead":"P&L (USD)","label":"Corrected S7 monthly backtest P&L","height":260}</script>
+
+<p>What changed afterwards: every backtest in the repository now receives market data through a single accessor that takes an explicit as-of time, and the research skill's first gate asks, in writing, which timestamp each input was observed at. The general lesson is older than us: when a backtest looks like a money printer, the first hypothesis is that it is reading the answer key.</p>
+
+<h2 id="postmortem-2">Postmortem 2: a live loss that killed a variant</h2>
+<p>S5 was designed on 15-minute markets and then switched on for the 5-minute cadence too, where the backtests were also positive. Live, the 5-minute variant won 71.3% of 216 trades and lost $494. The two facts are compatible: at an average entry near 0.75, 71% is below break-even.</p>
+<p>The diagnosis was fills. On the 5-minute markets the book is thinner and moves faster, so the price we paid was systematically worse than the snapshot price the backtest assumed, and the window was too short for the favourite-longshot bias to pay for that. Rather than tune it, we cut the 5-minute markets entirely, raised the minimum entry price from 0.55 to 0.65, removed a "dead zone" exclusion the backtest had suggested and halved the bet size while the 15-minute variant proved itself. The machine-learned gate, which had been flat on the 5-minute markets (288 trades, +$4.61), was moved to the 15-minute cadence for the same reason. The rule we kept: a live result that diverges from its backtest is a data point about the backtest, and the response is to stop, not to average it in.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/polymarket/s6_live_5m.webp" alt="Four-panel analysis of the S6 strategy live on 5-minute markets: calibration by entry price, an equity curve over 288 trades ending near 4.61 dollars, win rate by asset with ETH below break-even, and win rate by minutes to end." width="1600" height="1169" loading="lazy">
+  <figcaption>The machine-learned gate live on 5-minute markets: 288 trades, +$4.61. Calibrated on paper, flat in practice, with ETH below break-even. A negative result that cost almost nothing, which is the best kind. <span class="src">Source: live analysis, 11 April 2026.</span></figcaption>
+</figure>
+
+<h2>Smaller things we learned</h2>
+<ul>
+  <li><b>Execution is the strategy.</b> Polymarket charged a 7.2% taker fee on these crypto markets. Every configuration of the streak-reversal strategy is profitable as a maker and loses as a taker on the same trades; Figure 9 is the whole argument.</li>
+  <li><b>Sizing is not edge.</b> In a walk-forward study of the favourite-press gates (8,726 markets, 60/40 split), half-Kelly sizing multiplied both profit and drawdown by 2.5 and left the per-trade Sharpe unchanged at 0.38, while rule-based size tilts made it worse (0.34). The production filter alone lifted it from 0.27 to 0.38; a logistic expected-value gate reached 0.41 with a third fewer trades.</li>
+  <li><b>The edge sat in one bucket.</b> In the 18-day live sample, trades where the two asks summed to between 1.00 and 1.02 made $521 (n = 2,070, z = 2.39); every wider-spread bucket lost. Entries 10 to 15 minutes before settlement made money; entries 5 to 10 minutes before did not.</li>
+  <li><b>Within-window moves matter in a barbell.</b> Over 2,346 paper trades, the favourite's edge over break-even was +3.0 points when the underlying had barely moved since the window opened, +0.1 when it had moved 5 to 10 basis points, and +5.9 when it had moved more than 20.</li>
+  <li><b>A fair value from options was not a better price.</b> A June research memo priced daily and 4-hour markets off the Deribit implied-volatility surface, with pre-registered gates, over 1,304 markets. On daily "above" ladders the model was statistically indistinguishable from the market mid (Brier difference −0.0012, 95% interval including zero); on 4-hour markets the market was clearly better. The memo's one positive, a NO-side edge on entries after a specific price move, had n = 71 to 108 and was flagged as a launch-window artefact by its own author.</li>
+</ul>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/polymarket/s1_maker_vs_taker.png" alt="Three out-of-sample equity curves for the streak-reversal strategy at streak thresholds 3, 4 and 5. In each, maker execution ends positive (64, 32 and 18 dollars) and taker execution ends negative (minus 95, 43 and 16)." width="1800" height="562" loading="lazy">
+  <figcaption>Streak reversal, out of sample, executed as a maker (green) and as a taker (red) on identical signals, for three streak thresholds. The sign flips in every panel: the fee is larger than the edge. <span class="src">Source: tick-level replay of the pmxt archive, 13 April 2026.</span></figcaption>
+</figure>
+
+<h2 id="v2">Afterwards: the June rewrite</h2>
+<p>In June I rebuilt the trading infrastructure from scratch, alone, as a production-only system: no research code, no old strategies ported. The design goal was that the system should be unable to do the things that had cost us money or sleep. Git shows 64 commits and 22,770 lines of Python in the first 53 hours, and 77 commits, 24,076 lines of Python (8,599 of them tests, 381 test functions) after about 100 hours across five days. Every commit carries a Claude Code co-author trailer; the pace is the tooling's, the architecture is mine.</p>
+<ul>
+  <li><b>One chokepoint.</b> Strategies are separate operating-system processes that never import the exchange client, never hold a key and never open a socket. They publish order intents to a durable Redis stream; a single order-gateway process consumes them, runs the risk checks, signs, posts, persists to Postgres and only then acknowledges the stream entry, so a crash replays rather than loses.</li>
+  <li><b>Eleven ordered pre-trade checks.</b> Kill switch and trading-enabled flag, connectivity, market status, allow-list, order validity, price collar, per-strategy limits, firm-wide limits, daily loss limits, rate guard, self-trade prevention. Any exception inside a check rejects the order: the pipeline fails closed.</li>
+  <li><b>Four independent gates.</b> The strategy's service unit, a quoting flag in its config, the gateway's dry-run default and a trading-enabled flag in Redis must all be opened, separately and deliberately, before an order can reach the venue. The dashboard is read-only by design; halting is a control-plane action.</li>
+  <li><b>Live and simulated share one interface.</b> The backtest engine replays recorded market data through the same strategy context as production. One bug found this way: cancels silently failed in simulation, so any quote-and-requote strategy would have shown "fantasy" maker fills. Fixed with a regression test on 16 June.</li>
+</ul>
+
+<figure class="fig">
+  <div class="chart" data-chart="bars" data-src="#v2-build"></div>
+  <figcaption>Lines added per day during the rewrite, 13 to 17 June 2026, from git. Day one is the design documents, the schemas, the gateway and the first tests; the tail is pilot fixes. <span class="src">Source: git numstat on the repository.</span></figcaption>
+</figure>
+<script type="application/json" id="v2-build">{"categories":["Jun 13","Jun 14","Jun 15","Jun 16","Jun 17"],"values":[19502,7343,4234,1650,989],"ylabel":"Lines added","showValues":true,"valfmt":null,"xhead":"Day","yhead":"Lines added","label":"Lines added per day during the June rewrite","height":240}</script>
+
+<p>The first strategy was a two-sided maker on the noon daily BTC and ETH markets. The research behind it found that a fair value from the Deribit volatility surface beats the market's own Brier score (0.0631 versus 0.0643 on 2.9 million observations across 7,402 markets) and also that centring quotes on that fair value hurts in every simulated configuration, so the maker quotes around the book mid and keeps the model for risk. It went live at ten shares a quote with a $50 daily loss cap. Three pilot days, three lessons: on 15 June the maker re-quoted at about 290 orders a minute with zero fills and built a backlog the gateway could not drain (fixed with an absolute re-quote threshold and one order per leg; order rate fell to about three a minute); on 16 June it accumulated one leg in a trend (fixed with an inventory-reduction path and a cost-to-complete gate that, replayed over that day's 7.2 million recorded events, moved the mark-to-market from −$3.51 to +$10.81 in simulation); on 17 June it lost $9.24 to sub-tick order rejects near settlement and to quoting markets that were already decided (fixed by clamping the tick grid and narrowing the quote band to 0.20 to 0.80). Then I halted it. The simulation's six-month estimate depends on an unobservable queue-position parameter and I do not quote it.</p>
+
+<h2>What I would do differently</h2>
+<ul>
+  <li>Keep one consolidated ledger from the first trade. The whole-run P&amp;L of the first-generation system is reconstructable only from the exchange, because research databases, dashboard tables and audit scripts each covered part of the period.</li>
+  <li>Reconcile against on-chain fills daily rather than at month end. The phantom-fill bug hid for three weeks.</li>
+  <li>Start with the fail-closed gateway. The June architecture is what the March system should have been; the March system was built to answer a research question fast, and it did.</li>
+  <li>Decide the stop rule in writing before going live. We stopped for good reasons, but the tuning memo's two-week verification was the right experiment and it never ran.</li>
+</ul>
+</main>
+<footer class="site-foot">
+  <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
+  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="../../assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></span>
+  <span>Hand-written HTML, CSS and SVG. No framework, no tracking. Updated September 2026.</span>
+</footer>
+<script src="../../charts.js" defer></script>
+<script src="../../live.js" defer></script>
+
+</body>
+</html>

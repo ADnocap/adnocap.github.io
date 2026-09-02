@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMC Prosperity 4 · Alexandre Dalban</title>
+<meta name="description" content="Team of three, rank 458 of 18,803 in IMC's Prosperity 4 algorithmic trading competition, with a calibrated Rust market simulator, an Optuna optimiser with overfitting checks, and five documented dead ends.">
+<meta property="og:title" content="IMC Prosperity 4 · Alexandre Dalban">
+<meta property="og:description" content="Team of three, rank 458 of 18,803 in IMC's Prosperity 4 algorithmic trading competition, with a calibrated Rust market simulator, an Optuna optimiser with overfitting checks, and five documented dead ends.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://adnocap.github.io/work/imc-prosperity/">
+<link rel="canonical" href="https://adnocap.github.io/work/imc-prosperity/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23161616'/%3E%3Cpath d='M6 24 L13 9 L20 24 M9 19 h8 M22 14 h5 M22 19 h5' stroke='%23fbfbf9' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
+</head>
+<body>
+<header class="site-head">
+  <a class="brand" href="../../">Alexandre Dalban</a>
+  <nav aria-label="Site">
+    <a href="../../#work" aria-current="page">Work</a>
+    <a href="../../log/">Log</a>
+    <a href="../../about/">About</a>
+  </nav>
+</header>
+<main class="article">
+<p class="kicker">Work · competition</p>
+<h1>IMC Prosperity 4</h1>
+<p class="lede">Fifteen days, five rounds, one Python file per round traded against the exchange's bots. Our team of three finished 458th of 18,803 teams. The infrastructure we built to get there is the part I would show.</p>
+
+<dl class="meta">
+  <dt>Dates</dt><dd>14 to 30 April 2026</dd>
+  <dt>Status</dt><dd>Finished. Rank 458, Finalist Crew, 338,701.77 XIRECs (the competition's fictional currency)</dd>
+  <dt>Role</dt><dd>Team of three; I authored about three quarters of the commits. Mine: the simulator refactor and its round-3 and round-5 calibrations, the Rust/WASM analysis workshop, the optimiser framework, the main trader line for rounds 1 to 3 and the manual-challenge solutions. My teammate led the round-1 bot calibration, the round-4 shipped trader and much of round 5. The backtester and visualiser skeleton were adapted from an open-source release by another team, credited in the repository.</dd>
+  <dt>Code</dt><dd><a href="https://github.com/ADnocap/IMC_Prosperity4">github.com/ADnocap/IMC_Prosperity4</a>, public</dd>
+</dl>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/imc/finalist_crew.webp" alt="IMC's Prosperity 4 Finalist Crew card for team I am Maximus: ranking 458, P&L 338,701.77 XIRECs." width="1200" height="630" loading="lazy">
+  <figcaption>The competition's result card for our team. <span class="src">Source: IMC's participant media kit; the 18,803 team count is <a href="https://www.imc.com/us/corporate-news/prosperity-4">IMC's</a>.</span></figcaption>
+</figure>
+
+<h2>Simulate the exchange, do not replay it</h2>
+<p>The competition's markets are made by a few scripted bots around a hidden fair value. Replaying historical CSVs assumes your orders would not have changed anything; we instead reverse-engineered the bots and simulated the market. The trick, inherited from the open-source tooling: submit a trader that buys one unit at the first tick and holds, so the exchange's own P&amp;L log reveals the fair-value path. Brute-force search over quoting formulas then matched the bots' published quotes exactly: 99.7 to 100% for the two bots on one product, 99.9% and 99.0% on another, including the non-obvious discovery that one set of bots quoted proportional offsets, floor(FV × (1 − 3/4000)), rather than fixed ticks. On matched fair-value paths the simulator reproduced the portal's P&amp;L within 0.8% in total.</p>
+<p>I refactored the inherited single-file Rust simulator into a per-asset plug-in architecture (1,872 to 5,923 lines), added the twelve round-3 products, and for round 5 rebuilt it as a two-layer scenario engine: joint fair-value paths that honour hidden constraints the data analysis had found (five products summing to exactly 50,000; a pair and a triplet with near-zero variance in their sums), plus three shared Poisson trade-burst processes across 50 products, because trades arrived in synchronised bursts rather than 50 independent streams.</p>
+
+<figure class="fig wide">
+  <img src="../../assets/fig/imc/pebble_basket_sum.png" alt="Sum of five product mid-prices over 30,000 ticks hugging 50,000 with a standard deviation of 2.8, and a log-scale histogram of the deviations." width="1800" height="540" loading="lazy">
+  <figcaption>The round-5 hidden constraint: five products whose mid-prices sum to 50,000 with a standard deviation of 2.80 over 30,000 ticks. The principal-components analysis that found it had a smallest eigenvalue of 1.57 against 187,287 for the next. <span class="src">Source: round-5 exploratory analysis, 28 April 2026.</span></figcaption>
+</figure>
+
+<p>On top of the simulator sat an Optuna optimiser with train, validation and test seed splits, a retest on fresh seeds at the end of every study, and anti-overfitting diagnostics: deflated Sharpe ratio, probability of backtest overfitting by combinatorial cross-validation, cluster stability and fANOVA. Round 3 ran five studies and 2,224 trials; the trader we shipped was the out-of-sample winner of the second study (deflated-Sharpe probability 1.0, overfitting probability 0.03). A browser workshop with thirteen market-microstructure kernels compiled from Rust to WebAssembly (microprice, queue imbalance, order-flow imbalance, mark-outs by counterparty, effective versus realised spread, lead-lag, pair spreads with half-life) ran in a web worker at 5 to 50 milliseconds per panel on 580,000-row rounds.</p>
+
+<h2>Results by round</h2>
+<div class="scroll">
+<table class="tbl">
+  <tr><th>Round</th><th class="n">Algorithmic P&amp;L</th><th class="n">Manual P&amp;L</th><th class="n">Position after round</th></tr>
+  <tr><td>1</td><td class="n">99,546</td><td class="n">87,995</td><td class="n">432</td></tr>
+  <tr><td>2</td><td class="n">98,726</td><td class="n">204,355</td><td class="n">176</td></tr>
+  <tr><td>3 (leaderboard reset to zero)</td><td class="n">11,141</td><td class="n">66,229</td><td class="n">1,998</td></tr>
+  <tr><td>4</td><td class="n">70,320</td><td class="n">57,684</td><td class="n">716</td></tr>
+  <tr class="best"><td>5 (final)</td><td class="n">66,247</td><td class="n">≈ 67,081</td><td class="n">458</td></tr>
+  <caption>XIRECs. The position after round 2 is the interim rank sometimes quoted for this team; the leaderboard restarted from zero for rounds 3 to 5 and 458 is the final rank. Round-5 manual P&amp;L is inferred from the final total.</caption>
+</table>
+</div>
+
+<figure class="fig">
+  <img src="../../assets/fig/imc/round4_scorecard.png" alt="Portal scorecard for round 4: position 716, algorithmic result plus 70,320 with a cumulative P&L curve that dips early and recovers, manual result plus 57,684." width="672" height="921" loading="lazy">
+  <figcaption>The round-4 scorecard, our strongest algorithmic round after the reset: an early drawdown of about 30,000 and a recovery to +70,320 over 10,000 ticks. <span class="src">Source: competition portal screenshot.</span></figcaption>
+</figure>
+
+<h2>Five things we killed</h2>
+<ul>
+  <li>An option-implied drift signal that looked like +4,716 died in a 26-trial random search: train and holdout uplift were correlated at −0.700 and not one configuration beat the baseline on both.</li>
+  <li>A cross-strike spread trade showing +11,265 was a mid-to-mid accounting artefact; under realistic fills 94 of 94 configurations were negative or zero.</li>
+  <li>Delta-hedged short volatility on the option chain returned +166 to +1,033 a day in walk-forward, against a planning estimate of tens of thousands.</li>
+  <li>Counterparty identifiers carried no alpha: all nine integration variants lost, the standalone version by 64,044 over three replay days.</li>
+  <li>In round 5 a "pulse tilt" overlay was proven a no-op by byte-identical trade histories across three submissions, so the final trader shipped with it disabled.</li>
+</ul>
+<p>And one lesson about the tooling: the portal's 1,000-tick preview backtest is dominated by price-path luck. Our round-3 trader showed +17,449 there and made +11,141 in the 10,000-tick final, with the first thousand ticks of the final contributing +817.</p>
+</main>
+<footer class="site-foot">
+  <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
+  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="../../assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></span>
+  <span>Hand-written HTML, CSS and SVG. No framework, no tracking. Updated September 2026.</span>
+</footer>
+<script src="../../charts.js" defer></script>
+
+</body>
+</html>
