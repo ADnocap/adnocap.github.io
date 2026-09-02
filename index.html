@@ -32,8 +32,8 @@
   <img src="assets/img/portrait.jpg" alt="Portrait of Alexandre Dalban" width="132" height="132">
   <div>
     <h1>Alexandre Dalban</h1>
-    <p class="lede">I build forecasting models and trading systems, run them for real, and write down what went wrong.</p>
-    <p>MSc in Artificial Intelligence at CentraleSupélec (graduating November 2026), BS in Mathematics and Computer Science from Boston College. Currently an applied AI research intern at Siemens in Munich; before that, two summers of alpha research at LeCap Asset Management, a systematic equity hedge fund in London. Available for full-time roles from November 2026 in London, the US or the EU. US and EU citizen with UK settled status, so no visa sponsorship is needed anywhere. Email: <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a>.</p>
+    <p class="lede">I build forecasting models and trading systems, have run them for real, and write down what went wrong.</p>
+    <p>MSc in Artificial Intelligence at CentraleSupélec (graduating November 2026), BS in Mathematics and Computer Science from Boston College. Currently an applied AI research intern at Siemens in Munich; before that, two summers of alpha research at LeCap Asset Management, a systematic equity hedge fund in London. Available for full-time roles from November 2026 in London, the US or the EU. US and EU citizen with UK settled status, so no visa sponsorship is needed in the UK, the US or the EU. Email: <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a>.</p>
   </div>
 </div>
 
@@ -51,9 +51,9 @@
 <ol class="ledger">
   <li class="year">2026</li>
   <li>
-    <span class="when">Aug →</span>
+    <span class="when">Mar →</span>
     <span class="what"><a href="work/fpl/">Fantasy Premier League, predict and optimise</a>
-      <span class="result">A LightGBM point predictor feeding a mixed-integer squad optimiser. 2,918 net points on a chip-free replay of 2024/25 and 2,261 on the harder 2025/26 replay; now managing a real entry, tracked on the page every week.</span></span>
+      <span class="result">A LightGBM point predictor feeding a mixed-integer squad optimiser. 2,918 net points on a chip-free replay of 2024/25 and 2,261 on the harder 2025/26 replay; now planning a real entry each week, tracked on the page.</span></span>
     <span class="status live">live season</span>
   </li>
   <li>
@@ -77,13 +77,13 @@
   <li>
     <span class="when">Apr</span>
     <span class="what"><a href="work/phantom/">Phantom, distributional forecasts for 362 cryptocurrencies</a>
-      <span class="result">A 31.7M-parameter Transformer predicting Student-t return distributions at 1 to 30 days. Out-of-sample rank IC 0.124 at 10 days, positive in 15 of 15 months. Audited in July: the Sharpe I had published was inflated by about √10 and was corrected in public.</span></span>
+      <span class="result">A 31.7M-parameter Transformer predicting Student-t return distributions at 1 to 30 days. Out-of-sample rank IC 0.124 at 10 days, positive in 15 of 15 months. Audited in July: the Sharpe I had reported was inflated by about √10 and was corrected in public.</span></span>
     <span class="status">audited, paper in preparation</span>
   </li>
   <li>
     <span class="when">Apr</span>
     <span class="what"><a href="work/imc-prosperity/">IMC Prosperity 4</a>
-      <span class="result">Rank 458 of 18,803 teams (Finalist Crew), team of three. A Rust market simulator calibrated to the exchange bots' quoting rules at 99 to 100% exact match, an Optuna optimiser with deflated-Sharpe and overfitting checks, and five documented dead ends.</span></span>
+      <span class="result">Rank 458 of 18,803 teams (Finalist Crew), team of three. A Rust market simulator, extended from open-source tooling, that reproduced the round-1 market-making bots' quoting rules at 99 to 100% exact match, an Optuna optimiser with deflated-Sharpe and overfitting checks, and five documented dead ends.</span></span>
     <span class="status">done</span>
   </li>
   <li>
@@ -95,7 +95,7 @@
   <li>
     <span class="when">Feb</span>
     <span class="what"><span class="title">DeFi Sentinel, HackEurope</span>
-      <span class="result">2nd place in the Solana challenge. A rug-pull detector for newly launched Solana tokens (XGBoost on a public pool dataset); I built the live-data collectors and the backend, in a team of three.</span></span>
+      <span class="result">2nd place in the Solana challenge. A rug-pull detector for newly launched Solana tokens (XGBoost on a public pool dataset); a hackathon team project in which I built the live-data collectors and the backend.</span></span>
     <span class="status">hackathon</span>
   </li>
   <li>
@@ -115,7 +115,7 @@
   <li>
     <span class="when">Summers 24, 25</span>
     <span class="what"><a href="about/#lecap">Quantitative finance intern, LeCap Asset Management, London</a>
-      <span class="result">Researched and validated 100+ alpha signals for a systematic equity strategy; built the weekly reporting that scores 150+ signals on 8 metrics; a forecasting pipeline on 90 proprietary indicators and factor-residualised returns across the top 1,000 North American equities reached 54% daily directional accuracy against a coin-flip baseline. Invited back for a second summer.</span></span>
+      <span class="result">Researched and validated 100+ alpha signals for a systematic equity strategy; built the weekly reporting that scores 150+ signals on 8 metrics; a forecasting pipeline on 90 proprietary indicators and factor-residualised returns across the top 1,000 North American equities, whose best model reached 54% daily directional accuracy against a coin-flip baseline near 50%. Returned for a second summer.</span></span>
     <span class="status">two summers</span>
   </li>
 
@@ -129,7 +129,7 @@
 </ol>
 
 <h2 id="corrections">Numbers I have retracted</h2>
-<p>Every result above ships with its caveat, and some shipped with a mistake first. These are the ones I found and corrected, with the date. The <a href="log/">experiment log</a> has the negative results that never became claims.</p>
+<p>Every result above ships with its caveat, and some shipped with a mistake first. These are the corrections, with the date; where the work was a collaborator's rather than mine, the entry says so. The <a href="log/">experiment log</a> has the negative results that never became claims.</p>
 <ul class="corrections">
   <li>
     <span class="when">2026-07</span>
@@ -144,7 +144,7 @@
   <li>
     <span class="when">2026-04</span>
     <span><span class="old">Sharpe 9.5, 98.8% win rate</span><span class="arrow">→</span><span class="new">Sharpe 0.85, 94.5%</span>
-      <span class="why">A backtest for an at-the-money strike strategy picked the strike using the settlement-time price instead of the entry-time price. Fifteen minutes of look-ahead was the entire edge.</span></span>
+      <span class="why">A backtest for an at-the-money strike strategy picked the strike using the settlement-time price instead of the entry-time price. Fifteen minutes of look-ahead was the entire edge. A joint project; the strategy and the corrected backtest were my collaborator's work, the lesson is ours.</span></span>
   </li>
   <li>
     <span class="when">2026-03</span>

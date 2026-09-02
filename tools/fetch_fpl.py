@@ -5,7 +5,7 @@ Only public endpoints are used; no login or token is needed.
 """
 import json, sys, urllib.request, datetime, pathlib
 
-ENTRY = 8737706  # public FPL entry id of the team the model manages
+ENTRY = 8737706  # public FPL entry id of the entry the model plans for
 UA = {"User-Agent": "Mozilla/5.0 (portfolio tracker; github.com/ADnocap)"}
 BASE = "https://fantasy.premierleague.com/api"
 

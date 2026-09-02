@@ -35,7 +35,7 @@
 <div class="entry">
   <div class="head"><span class="num">2026-08</span><span>Fantasy Premier League</span><span class="verdict killed">killed</span></div>
   <h3>Balanced sample weights will help the predictor on high-scoring players</h3>
-  <p>Weighting training rows so that rare haulers count as much as blanks. Per-gameweek rank correlation fell from 0.747 to 0.662 and mean absolute error rose from 0.825 to 0.902. A Tweedie loss tried in the same session raised correlation by 0.0016 and worsened every error bin. Both rejected; the plain MAE objective stayed.</p>
+  <p>Weighting training rows so that rare haulers count as much as blanks. Per-gameweek rank correlation fell from 0.747 to 0.662 and mean absolute error rose from 0.825 to 0.902. A Tweedie loss tried in the same session raised correlation by 0.0016 but worsened mean absolute error (0.825 to 0.828) and the error on players scoring four or more points, improving it only on the two low bins. Both rejected; the plain MAE objective stayed.</p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-08</span><span>Fantasy Premier League</span><span class="verdict kept">kept</span></div>
@@ -45,17 +45,17 @@
 <div class="entry">
   <div class="head"><span class="num">2026-07</span><span>Phantom</span><span class="verdict">finding</span></div>
   <h3>Phantom's signal is largely the low-volatility anomaly</h3>
-  <p>A naive sort on inverse trailing volatility has a higher raw rank IC (0.165 against 0.124) and is 0.63 rank-correlated with the model's forecast. Phantom's independent contribution is significant only inside the mid- and high-volatility terciles (spread t = 2.6 and 4.1); combining the two signals gives IC 0.157. Found during the July audit; now the first line of the README's limitations.</p>
+  <p>A naive sort on inverse trailing volatility has a higher raw rank IC (0.165 against 0.124) and is 0.63 rank-correlated with the model's forecast. Phantom's independent contribution is significant only inside the mid- and high-volatility terciles (spread t = 2.6 and 4.1); combining the two signals gives IC 0.157. Found during the July audit; now item four of the README's limitations.</p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-06</span><span>Polymarket, June rewrite</span><span class="verdict killed">killed</span></div>
   <h3>Centring maker quotes on an options-implied fair value should improve a market-making strategy</h3>
-  <p>A fair value from Deribit's implied-volatility surface beat the market's own Brier score on 2.9 million observations (0.0631 against 0.0643). In an event-driven maker simulation, centring quotes on it hurt at every weight tried, down to 5%. The shipped maker quotes around the book mid and uses the model only for risk. Two bugs were found on the way: a double-counted trade feed (mirror legs) and a timestamp-unit error that voided one full simulation version.</p>
+  <p>A fair value from Deribit's implied-volatility surface beat the market's own Brier score on 2.9 million observations (0.0631 against 0.0643). In an event-driven maker simulation, centring quotes on it hurt at every weight tried, down to 5%. The shipped maker quoted around the book mid; the model was not wired into it at all. Two bugs were found on the way: a double-counted trade feed (mirror legs) and a timestamp-unit error that voided one full simulation version.</p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-06</span><span>Polymarket research memo</span><span class="verdict">inconclusive</span></div>
   <h3>A Deribit-anchored fair value prices Polymarket's daily crypto ladders better than the market</h3>
-  <p>Pre-registered gates over 1,304 markets from April to June. On daily "above" ladders the model was indistinguishable from the market mid (Brier difference −0.0012, 95% interval −0.0033 to +0.0008); on 4-hour up/down markets the market was clearly better (+0.0119). A taker-side test found a NO-side edge of 18 to 19 cents a contract on 71 to 108 trades, which the memo itself attributes to a launch-window effect. Not pursued.</p>
+  <p>Pre-registered gates over 1,304 markets from April to June. On daily "above" ladders the model was indistinguishable from the market mid (Brier difference −0.0012, 95% interval −0.0033 to +0.0008); on 4-hour up/down markets the market was clearly better (+0.0119). A taker-side test found a NO-side edge of 18 to 19 cents a contract on 71 to 108 trades, which the memo itself attributes to a launch-window effect. Re-tested days later at scale in the June rewrite (entry above): on 2.9 million observations over 7,402 daily markets the model did beat the market's Brier score (0.0631 against 0.0643), the taker-side edge did not reappear, and the fair value was left out of the shipped maker entirely. The 4-hour markets were not revisited.</p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-05</span><span>Polymarket, favourite press</span><span class="verdict">finding</span></div>
@@ -65,12 +65,12 @@
 <div class="entry">
   <div class="head"><span class="num">2026-04</span><span>Polymarket, S7</span><span class="verdict killed">killed</span></div>
   <h3>An at-the-money strike strategy on hourly markets has a 98.8% win rate</h3>
-  <p>It did, with the settlement-time price used to choose the strike. With the entry-time price: 94.5% win rate, +0.52% return on stake, per-trade Sharpe 0.85 instead of 9.5, over 696 trades. Never traded. Every backtest now reads market data through one accessor with an explicit as-of time. <a href="../work/polymarket/#postmortem-1">Full postmortem.</a></p>
+  <p>It did, with the settlement-time price used to choose the strike. With the entry-time price: 94.5% win rate, +0.52% return on stake, an annualised Sharpe on daily backtest P&amp;L of 0.85 instead of 9.5, over 696 trades. Never traded. The postmortem's takeaway is now a written rule in the repository (verify that a backtest uses only information available at decision time), and later backtests carry that no-look-ahead check explicitly. <a href="../work/polymarket/#postmortem-1">Full postmortem.</a></p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-04</span><span>Polymarket, S5 on 5-minute markets</span><span class="verdict killed">killed</span></div>
   <h3>The favourite-press rule transfers from 15-minute to 5-minute markets</h3>
-  <p>Backtests said yes. Live: 216 trades, 71.3% win rate, −$494, at entry prices where 71% is below break-even. Thinner books and worse fills than the snapshot backtest assumed. Cut entirely; the 15-minute variant was tightened at the same time. <a href="../work/polymarket/#postmortem-2">Full postmortem.</a></p>
+  <p>Backtests said yes. Live: 216 trades, 71.3% win rate, −$494, at entry prices where 71% is below break-even. The loss sat in the 0.68 to 0.83 entry band, which ran below break-even live on the 5-minute cadence despite positive backtests; the fills themselves were clean, so the backtest, not the execution, was wrong. Cut entirely; the 15-minute variant was tightened at the same time. <a href="../work/polymarket/#postmortem-2">Full postmortem.</a></p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-04</span><span>Polymarket, S6 machine-learned gate</span><span class="verdict killed">killed</span></div>
@@ -110,11 +110,11 @@
 <div class="entry">
   <div class="head"><span class="num">2026-04</span><span>IMC Prosperity 4</span><span class="verdict killed">killed</span></div>
   <h3>Four signals that did not survive an overfitting audit</h3>
-  <p>An option-implied drift signal (+4,716 in-sample) had a train-to-holdout correlation of −0.700 across 26 random-search configurations and beat the baseline on both in none. A cross-strike spread (+11,265) was a mid-to-mid accounting artefact: 94 of 94 configurations were non-positive under realistic fills. Counterparty identifiers lost in all nine variants. A round-5 overlay was shown to be a no-op by byte-identical trade histories across three submissions. Also: the portal's 1,000-tick preview backtest is noise; our shipped round-3 trader showed +17,449 there and made +11,141 over the full 10,000 ticks.</p>
+  <p>An option-implied drift signal (+4,716 in-sample) had a train-to-holdout correlation of −0.700 across 26 random-search configurations and beat the baseline on both in none. A cross-strike spread (+11,265) was a mid-to-mid accounting artefact: no configuration in the threshold sweep survived realistic fills (the best made +20 over three days on three trades). Counterparty identifiers lost in all nine variants. A round-5 overlay was shown to be a no-op by byte-identical trade histories across three submissions. Also: the portal's 1,000-tick preview backtest is noise; our shipped round-3 trader showed +17,449 there and made +11,141 over the full 10,000 ticks.</p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-04</span><span>Fantasy Premier League</span><span class="verdict kept">kept</span></div>
-  <h3>The game's own expected-points field is a post-match leak</h3>
+  <h3>The game's own expected-points field is a frozen pre-match prediction, not a post-match leak</h3>
   <p>A contributor's report argued the feature was contaminated and that a 3,376-point season built on it was invalid. Capturing the field live mid-gameweek for players who had already scored heavily showed it frozen at its deadline value, and reproducing its formula matched 426 of 429 live values (99.3%). The feature was kept and is the most important one in the production model. The disputed season score was retired anyway when the honest replay harness replaced it.</p>
 </div>
 <div class="entry">
@@ -128,9 +128,9 @@
   <p>Sixty-five harder generated questions moved accuracy by +2.0 points (p = 0.69); 586 paraphrases with frozen numbers moved it by +18.6 (p = 0.002). The folds were shuffled at the question level, so paraphrases leak across the split; on an independent 54-question holdout the headline adapter scored 55.6% against the base model's 59.3%, and an adapter trained on a 600-question subset fell to 33.3% against 53.7%. Grouped folds are the next experiment.</p>
 </div>
 <div class="entry">
-  <div class="head"><span class="num">2026-03</span><span>Reliability-engineering LLM</span><span class="verdict killed">killed</span></div>
+  <div class="head"><span class="num">2026-04</span><span>Reliability-engineering LLM</span><span class="verdict killed">killed</span></div>
   <h3>Direct preference optimisation and an early GRPO beat supervised fine-tuning</h3>
-  <p>DPO on 215 questions: −1.7 points. GRPO with a judge-model reward through TRL: +0.5. The same month, the +7.0-point supervised result from an earlier run was re-evaluated with greedy decoding and became +2.3; every experiment since uses greedy decoding.</p>
+  <p>DPO on 215 questions: −1.7 points. GRPO with a judge-model reward through TRL: +0.5. At the end of March, the +7.0-point supervised result from an earlier run had been re-evaluated with greedy decoding and became +2.3; every cross-validation number reported since uses greedy decoding.</p>
 </div>
 <div class="entry">
   <div class="head"><span class="num">2026-03</span><span>Reliability-engineering LLM</span><span class="verdict">finding</span></div>
