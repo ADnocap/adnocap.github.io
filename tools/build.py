@@ -56,7 +56,7 @@ FOOT = """
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
   <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="{rel}assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></span>
-  <span>Hand-written HTML, CSS and SVG. No framework, no tracking. Updated {updated}.</span>
+  <span>Hand-written HTML, CSS and SVG. No framework, no analytics. Updated {updated}.</span>
 </footer>
 {scripts}
 </body>
@@ -78,7 +78,7 @@ def build_one(path):
     meta, body = parse(path.read_text(encoding="utf-8"))
     out_dir = ROOT / meta.get("path", "")
     depth = len([p for p in meta.get("path", "").split("/") if p])
-    rel = "../" * depth
+    rel = "../" * depth or "./"
     section = meta.get("section", "")
     url = BASE + "/" + meta.get("path", "")
     scripts = ""
@@ -88,6 +88,8 @@ def build_one(path):
         extra = extra.strip()
         if extra:
             scripts += f'<script src="{rel}{extra}" defer></script>\n'
+    if 'class="note"' in body and '<main class="article">' in body:
+        body = body.replace('<main class="article">', '<main class="article notes">', 1)
     html = HEAD.format(
         title=meta["title"], description=meta.get("description", ""), url=url, rel=rel, site=SITE,
         cur_work=' aria-current="page"' if section == "work" else "",

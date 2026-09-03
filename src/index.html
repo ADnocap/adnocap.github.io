@@ -8,15 +8,17 @@ scripts: charts
 <main class="article">
 
 <div class="bio">
-  <img src="assets/img/portrait.jpg" alt="Portrait of Alexandre Dalban" width="132" height="132">
+  <img src="assets/img/portrait.jpg" alt="Portrait of Alexandre Dalban" width="720" height="720">
   <div>
     <h1>Alexandre Dalban</h1>
     <p class="lede">I build forecasting models and trading systems, have run them for real, and write down what went wrong.</p>
-    <p>MSc in Artificial Intelligence at CentraleSupélec (graduating November 2026), BS in Mathematics and Computer Science from Boston College. Currently an applied AI research intern at Siemens in Munich; before that, two summers of alpha research at LeCap Asset Management, a systematic equity hedge fund in London. Available for full-time roles from November 2026 in London, the US or the EU. US and EU citizen with UK settled status, so no visa sponsorship is needed in the UK, the US or the EU. Email: <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a>.</p>
+    <p>MSc in Artificial Intelligence at CentraleSupélec (graduating November 2026), BS in Mathematics and Computer Science from Boston College. Currently an applied AI research intern at Siemens in Munich; before that, two summers of alpha research at LeCap Asset Management, a systematic equity hedge fund in London. Available for full-time roles from November 2026 in London, the US, the EU or Switzerland. US and EU citizen with UK settled status, so no visa sponsorship is needed in the UK, the US or the EU. Email: <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a>.</p>
   </div>
 </div>
 
-<p class="start">If you have five minutes: <a href="work/polymarket/">the Polymarket trading system</a> and its two postmortems <span class="rt">(12 min)</span>, <a href="work/phantom/">Phantom</a>, a distributional forecaster I audited and corrected in public <span class="rt">(9 min)</span>, and <a href="log/">the experiment log</a>, where the negative results live <span class="rt">(6 min)</span>.</p>
+<p class="start">Start here: <a href="work/polymarket/">the Polymarket trading system</a> and its two postmortems, <a href="work/phantom/">Phantom</a>, a distributional forecaster I audited and corrected in public, and <a href="log/">the experiment log</a>, where the negative results live.</p>
+
+<p>One chart first: the monthly out-of-sample rank IC of Phantom, the forecaster in the April entry below.</p>
 
 <figure class="fig wide">
   <div class="chart" data-chart="bars" data-src="#ic-monthly"></div>
@@ -25,84 +27,84 @@ scripts: charts
 <script type="application/json" id="ic-monthly">{"width":960,"height":260,"categories":["Jan 25","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan 26","Feb","Mar"],"values":[0.180,0.168,0.128,0.036,0.106,0.161,0.067,0.176,0.045,0.137,0.200,0.115,0.172,0.060,0.037],"ymin":0,"ymax":0.22,"baseline":0.124,"baselineLabel":"full-period IC 0.124","ylabel":"Rank IC, 10-day horizon","xhead":"Month","yhead":"Rank IC","label":"Monthly rank IC of the Phantom model, all positive"}</script>
 
 <h2 id="work">Work</h2>
-<p>Dated, with the result that matters and the honest status. Deep write-ups exist for the entries with links; the rest point to code or are described on the <a href="about/">about page</a>.</p>
+<p>Dated, with the result that matters and the honest status. Deep write-ups exist for the underlined entries; the rest are summarised in place.</p>
 
 <ol class="ledger">
   <li class="year">2026</li>
   <li>
     <span class="when">Mar →</span>
     <span class="what"><a href="work/fpl/">Fantasy Premier League, predict and optimise</a>
-      <span class="result">A LightGBM point predictor feeding a mixed-integer squad optimiser. 2,918 net points on a chip-free replay of 2024/25 and 2,261 on the harder 2025/26 replay; now planning a real entry each week, tracked on the page.</span></span>
+      <span class="result">2,918 net points on a chip-free replay of 2024/25 and 2,261 on the harder 2025/26 replay, from a LightGBM point predictor feeding a mixed-integer squad optimiser. Now planning a real entry each week, tracked on the page.</span></span>
     <span class="status live">live season</span>
   </li>
   <li>
     <span class="when">Jul</span>
     <span class="what"><span class="title">Counterproof, a venture-diligence engine</span>
-      <span class="result">Scores founder claims by asking what evidence should exist if the claim were true, then pricing its absence with a likelihood ratio over an append-only, point-in-time ledger. Built by a team of three in a 21-hour hackathon sprint; <a href="https://adnocap.github.io/counterproof/">static demo</a> over fixture data.</span></span>
+      <span class="result">Scores founder claims by the evidence that should exist if they were true, pricing absence with a likelihood ratio over an append-only ledger. Team of three, 21-hour sprint; <a href="https://adnocap.github.io/counterproof/">static demo</a> over fixture data.</span></span>
     <span class="status">hackathon</span>
   </li>
   <li>
     <span class="when">Jun</span>
     <span class="what"><a href="work/polymarket/#v2">A fail-closed order gateway, rewritten from scratch</a>
-      <span class="result">Production-only rebuild of the trading stack: one signing chokepoint, eleven ordered pre-trade risk checks, four independent gates and a kill switch. 22,770 lines of Python in 53 hours with Claude Code, then three pilot days at 10-share size.</span></span>
+      <span class="result">22,770 lines of Python in 53 hours with Claude Code: one signing chokepoint, eleven ordered pre-trade risk checks, four independent gates and a kill switch. Then three pilot days at 10-share size.</span></span>
     <span class="status">piloted, halted</span>
   </li>
   <li>
     <span class="when">May →</span>
     <span class="what"><span class="title">Applied AI research intern, Siemens AG, Munich</span>
-      <span class="result">Detecting machinable features (holes, pockets, slots) on 3D part designs from sampled point clouds, to automate a manual CAD-to-CAM step. Self-supervised pretraining and graph neural networks; the current approach reaches about 95% panoptic quality on the MFInstSeg benchmark, on par with the state of the art.</span></span>
+      <span class="result">About 95% panoptic quality on the MFInstSeg benchmark, on par with the state of the art, detecting machinable features on 3D part designs from point clouds to automate a CAD-to-CAM step.</span></span>
     <span class="status">current</span>
   </li>
   <li>
     <span class="when">Apr</span>
     <span class="what"><a href="work/phantom/">Phantom, distributional forecasts for 362 cryptocurrencies</a>
-      <span class="result">A 31.7M-parameter Transformer predicting Student-t return distributions at 1 to 30 days. Out-of-sample rank IC 0.124 at 10 days, positive in 15 of 15 months. Audited in July: the Sharpe I had reported was inflated by about √10 and was corrected in public.</span></span>
-    <span class="status">audited, paper in preparation</span>
+      <span class="result">Out-of-sample rank IC 0.124 at 10 days, positive in 15 of 15 months, from a 31.7M-parameter Transformer predicting Student-t distributions. Audited in July: the Sharpe I had reported was inflated by about √10 and corrected in public.</span></span>
+    <span class="status">audited, paper in prep</span>
   </li>
   <li>
     <span class="when">Apr</span>
     <span class="what"><a href="work/imc-prosperity/">IMC Prosperity 4</a>
-      <span class="result">Rank 458 of 18,803 teams (Finalist Crew), team of three. A Rust market simulator, extended from open-source tooling, that reproduced the round-1 market-making bots' quoting rules at 99 to 100% exact match, an Optuna optimiser with deflated-Sharpe and overfitting checks, and five documented dead ends.</span></span>
+      <span class="result">Rank 458 of 18,803 teams (Finalist Crew), team of three. A Rust market simulator that reproduced the round-1 bots' quoting rules at 99 to 100% exact match; five documented dead ends.</span></span>
     <span class="status">done</span>
   </li>
   <li>
     <span class="when">Feb–Jun</span>
     <span class="what"><a href="work/polymarket/">A live trading system for 15-minute crypto binaries on Polymarket</a>
-      <span class="result">Multi-strategy hub with one process per strategy, co-built and run on personal capital. The favourite-press strategy settled 3,037 live trades in 18 days at a 78.0% win rate. Two postmortems: a look-ahead leak that took a backtest from Sharpe 9.5 to 0.85, and a $494 live loss that killed a variant.</span></span>
+      <span class="result">3,037 live trades in 18 days at a 78.0% win rate, co-built and run on personal capital. Two postmortems: a look-ahead leak that took a backtest from Sharpe 9.5 to 0.85, and a $494 live loss that killed a variant.</span></span>
     <span class="status">wound down</span>
   </li>
   <li>
     <span class="when">Feb</span>
     <span class="what"><span class="title">DeFi Sentinel, HackEurope</span>
-      <span class="result">2nd place in the Solana challenge. A rug-pull detector for newly launched Solana tokens (XGBoost on a public pool dataset); a hackathon team project in which I built the live-data collectors and the backend.</span></span>
+      <span class="result">2nd place, Solana challenge. A rug-pull detector for new Solana tokens; a team project in which I built the live-data collectors and the backend.</span></span>
     <span class="status">hackathon</span>
   </li>
   <li>
     <span class="when">Feb</span>
     <span class="what"><a href="https://github.com/ADnocap/taut-arb-backtest">taut-arb-backtest, an open dataset</a>
-      <span class="result">30,180 settled Polymarket crypto markets with 1.1M price observations, plus 5,171 sports events aligned to de-vigged Pinnacle odds, with a Deribit-based volatility reconstruction. Data only; no strategy results attached.</span></span>
+      <span class="result">30,180 settled Polymarket crypto markets with 1.1M price observations, plus 5,171 sports events aligned to de-vigged Pinnacle odds. Data only.</span></span>
     <span class="status">public</span>
   </li>
   <li>
-    <span class="when">Oct 25–Apr</span>
+    <span class="when">Oct 25–Apr 26</span>
     <span class="what"><a href="work/reliability-llm/">A domain-specific LLM for reliability engineering</a>
-      <span class="result">56 textbook problems bootstrapped into 866 verified question-answer pairs with cross-model verification; Qwen3-8B fine-tuned from 63.6% to 82.2% accuracy (10-fold cross-validation, p = 0.002). Joint MSc research project; paper in preparation.</span></span>
+      <span class="result">Qwen3-8B fine-tuned from 63.6% to 82.2% (10-fold cross-validation, p = 0.002) on 866 verified question-answer pairs bootstrapped from 56 textbook problems. Joint project; paper in preparation.</span></span>
     <span class="status">paper in preparation</span>
   </li>
 
   <li class="year">2025</li>
   <li>
-    <span class="when">Summers 24, 25</span>
+    <span class="when">2024–25</span>
     <span class="what"><a href="about/#lecap">Quantitative finance intern, LeCap Asset Management, London</a>
-      <span class="result">Researched and validated 100+ alpha signals for a systematic equity strategy; built the weekly reporting that scores 150+ signals on 8 metrics; a forecasting pipeline on 90 proprietary indicators and factor-residualised returns across the top 1,000 North American equities, whose best model reached 54% daily directional accuracy against a coin-flip baseline near 50%. Returned for a second summer.</span></span>
+      <span class="result">Validated 100+ alpha signals for a systematic equity strategy; built the weekly reporting that scores 150+ signals on 8 metrics; best forecasting model at 54% daily directional accuracy against a coin-flip baseline near 50%. Returned for a second summer.</span></span>
     <span class="status">two summers</span>
   </li>
 
   <li class="year">2024</li>
   <li>
-    <span class="when">Fall</span>
+    <span class="when">Sep–Dec</span>
     <span class="what"><span class="title">TensorTalk, zero-shot voice cloning</span>
-      <span class="result">Training-free voice conversion from WavLM features with k-nearest-neighbour matching and a HiFi-GAN vocoder. Boston College course research project, team of four; I wrote the methods and am first author on the write-up.</span></span>
+      <span class="result">Training-free voice conversion from WavLM features with nearest-neighbour matching and a HiFi-GAN vocoder. Boston College team of four; first author on the write-up.</span></span>
     <span class="status">coursework</span>
   </li>
 </ol>
@@ -112,23 +114,23 @@ scripts: charts
 <ul class="corrections">
   <li>
     <span class="when">2026-07</span>
-    <span><span class="old">Sharpe 13.0</span><span class="arrow">→</span><span class="new">≈ 4.1, gross, an upper bound</span>
+    <span><span class="old">Sharpe 13.0</span><span class="arrow">→</span><span class="new"><span class="num">≈ 4.1</span> gross, an upper bound</span>
       <span class="why">Phantom's long-short series consisted of overlapping 10-day returns sampled daily, and I had annualised them as if they were daily returns, inflating the Sharpe ratio by about √10. README, paper draft, experiment log and evaluation code were corrected; net of realistic costs I consider 1 to 2 plausible.</span></span>
   </li>
   <li>
     <span class="when">2026-05</span>
-    <span><span class="old">+$549</span><span class="arrow">→</span><span class="new">+$383 over 18 days</span>
+    <span><span class="old">+$549</span><span class="arrow">→</span><span class="new"><span class="num">+$383</span> over 18 days</span>
       <span class="why">The trading dashboard counted phantom partial fills. Reconciling every trade against the on-chain record cut the favourite-press strategy's live result by 30%. The reconciliation was my collaborator's work.</span></span>
   </li>
   <li>
     <span class="when">2026-04</span>
-    <span><span class="old">Sharpe 9.5, 98.8% win rate</span><span class="arrow">→</span><span class="new">Sharpe 0.85, 94.5%</span>
+    <span><span class="old">Sharpe 9.5, 98.8% win rate</span><span class="arrow">→</span><span class="new">Sharpe <span class="num">0.85</span>, <span class="num">94.5%</span></span>
       <span class="why">A backtest for an at-the-money strike strategy picked the strike using the settlement-time price instead of the entry-time price. Fifteen minutes of look-ahead was the entire edge. A joint project; the strategy and the corrected backtest were my collaborator's work, the lesson is ours.</span></span>
   </li>
   <li>
     <span class="when">2026-03</span>
-    <span><span class="old">+7.0 pp</span><span class="arrow">→</span><span class="new">+2.3 pp</span>
-      <span class="why">An early fine-tuning gain on the reliability-engineering benchmark was evaluated with temperature sampling. Re-evaluated with greedy decoding, most of it was sampling variance. Every later experiment uses greedy decoding.</span></span>
+    <span><span class="old">+7.0 pp</span><span class="arrow">→</span><span class="new"><span class="num">+2.3 pp</span></span>
+      <span class="why">An early fine-tuning gain on the reliability-engineering benchmark was evaluated with temperature sampling. Re-evaluated with greedy decoding, most of it was sampling variance. Every later experiment uses greedy decoding. A joint project; the greedy re-evaluation commits were mine, the evaluation framework was shared work.</span></span>
   </li>
 </ul>
 
