@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Alexandre Dalban</title>
-<meta name="description" content="Forecasting models, trading systems and LLM post-training research by Alexandre Dalban, with the results and the corrections.">
+<meta name="description" content="Forecasting models, trading systems and LLM post-training research by Alexandre Dalban, with the results, the caveats and the negative results.">
 <meta property="og:title" content="Alexandre Dalban">
-<meta property="og:description" content="Forecasting models, trading systems and LLM post-training research by Alexandre Dalban, with the results and the corrections.">
+<meta property="og:description" content="Forecasting models, trading systems and LLM post-training research by Alexandre Dalban, with the results, the caveats and the negative results.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://adnocap.github.io/">
 <link rel="canonical" href="https://adnocap.github.io/">
@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./style.css?v=654951d2">
+<link rel="stylesheet" href="./style.css?v=f90d7c6f">
 <script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
 </head>
 <body>
@@ -144,31 +144,6 @@
     </span>
   </li>
 </ol>
-
-<h2 id="corrections">Numbers I have retracted</h2>
-<p>Every result above ships with its caveat, and some shipped with a mistake first. These are the corrections, with the date; where the work was a collaborator's rather than mine, the entry says so. The <a href="log/">experiment log</a> has the negative results that never became claims.</p>
-<ul class="corrections">
-  <li>
-    <span class="when">2026-07</span>
-    <span><span class="old">Sharpe 13.0</span><span class="arrow">→</span><span class="new"><span class="num">≈ 4.1</span> gross, an upper bound</span>
-      <span class="why">Phantom's long-short series consisted of overlapping 10-day returns sampled daily, and I had annualised them as if they were daily returns, inflating the Sharpe ratio by about √10. README, paper draft, experiment log and evaluation code were corrected; net of realistic costs I consider 1 to 2 plausible.</span></span>
-  </li>
-  <li>
-    <span class="when">2026-05</span>
-    <span><span class="old">+$549</span><span class="arrow">→</span><span class="new"><span class="num">+$383</span> over 18 days</span>
-      <span class="why">The trading dashboard counted phantom partial fills. Reconciling every trade against the on-chain record cut the favourite-press strategy's live result by 30%. The reconciliation was my collaborator's work.</span></span>
-  </li>
-  <li>
-    <span class="when">2026-04</span>
-    <span><span class="old">Sharpe 9.5, 98.8% win rate</span><span class="arrow">→</span><span class="new">Sharpe <span class="num">0.85</span>, <span class="num">94.5%</span></span>
-      <span class="why">A backtest for an at-the-money strike strategy picked the strike using the settlement-time price instead of the entry-time price. Fifteen minutes of look-ahead was the entire edge. A joint project; the strategy and the corrected backtest were my collaborator's work, the lesson is ours.</span></span>
-  </li>
-  <li>
-    <span class="when">2026-03</span>
-    <span><span class="old">+7.0 pp</span><span class="arrow">→</span><span class="new"><span class="num">+2.3 pp</span></span>
-      <span class="why">An early fine-tuning gain on the reliability-engineering benchmark was evaluated with temperature sampling. Re-evaluated with greedy decoding, most of it was sampling variance. Every later experiment uses greedy decoding. A joint project; the greedy re-evaluation commits were mine, the evaluation framework was shared work.</span></span>
-  </li>
-</ul>
 
 <script>(function(){var g=document.querySelector(".filters");if(!g)return;var rows=[].slice.call(document.querySelectorAll(".ledger li[data-type]")),years=[].slice.call(document.querySelectorAll(".ledger li.year")),btns=[].slice.call(g.querySelectorAll("button"));function apply(f){btns.forEach(function(x){var on=x.getAttribute("data-filter")===f;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on?"true":"false");});rows.forEach(function(r){r.hidden=!(f==="all"||r.getAttribute("data-type")===f);});years.forEach(function(y){var n=y.nextElementSibling,any=false;while(n&&!n.classList.contains("year")){if(!n.hidden)any=true;n=n.nextElementSibling;}y.hidden=!any;});}g.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var f=b.getAttribute("data-filter");apply(f);if(history.replaceState)history.replaceState(null,"",f==="all"?location.pathname+location.search:"#kind="+f);});var m=/^#kind=(work|research|project|competition)$/.exec(location.hash);if(m)apply(m[1]);})();</script>
 </main>

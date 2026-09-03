@@ -252,17 +252,6 @@ blockquote { margin: 0 0 1.1em; padding-left: 16px; border-left: 2px solid var(-
 .ledger .result a { color: var(--ink); }
 @media (max-width: 600px) { .ledger li { grid-template-columns: 1fr; gap: 2px; } .ledger .when { padding-top: 0; } .ledger .type { display: inline; margin: 0 0 0 10px; } }
 
-/* ---------- corrections ---------- */
-.corrections { list-style: none; padding: 0; margin: 8px 0 0; font-family: var(--sans); font-size: 15px; }
-.corrections li { display: grid; grid-template-columns: 96px 1fr; gap: 6px 18px; padding: 13px 0; border-top: 1px solid var(--rule); margin: 0; align-items: baseline; }
-.corrections .when { font-family: var(--mono); font-size: 13px; color: var(--ink-3); padding-top: 3px; }
-.corrections .old { font-family: var(--mono); color: var(--loss); text-decoration: line-through; text-decoration-thickness: 1.5px; }
-.corrections .new { font-family: var(--sans); font-weight: 500; color: var(--ink); }
-.corrections .new .num { font-weight: 600; }
-.corrections .arrow { color: var(--ink-3); margin: 0 6px; }
-.corrections .why { display: block; color: var(--ink-2); margin-top: 4px; font-size: 14.5px; line-height: 1.45; }
-@media (max-width: 600px) { .corrections li { grid-template-columns: 1fr; gap: 2px; } }
-
 /* ---------- home bio ---------- */
 .bio { display: grid; grid-template-columns: 124px 1fr; gap: 26px; align-items: start; margin: 0 0 30px; }
 .bio img { width: 124px; height: 124px; object-fit: cover; border-radius: 3px; filter: grayscale(1) contrast(1.02); }
