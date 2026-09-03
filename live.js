@@ -31,7 +31,7 @@
     document.body.appendChild(j2);
     const h2 = $("#fpl-rank-chart"); if (h2 && window.renderChart) { h2.setAttribute("data-src", "#fpl-rank-json"); window.renderChart(h2); }
     // table
-    const tb = $("#fpl-table tbody"); if (tb) { tb.innerHTML = ""; gws.forEach(g => { const tr = document.createElement("tr"); tr.innerHTML = `<td>GW${g.gw}</td><td class="n">${g.points}</td><td class="n">${g.average == null ? "" : g.average}</td><td class="n">${g.total}</td><td class="n">${num(g.rank)}</td><td class="n">${g.transfers}${g.hit ? " (−" + g.hit + ")" : ""}</td><td>${g.chip || ""}</td>`; tb.appendChild(tr); }); }
+    const tb = $("#fpl-table tbody"); if (tb) { tb.innerHTML = ""; gws.forEach(g => { const tr = document.createElement("tr"); tr.innerHTML = `<td>GW${g.gw}</td><td class="n" data-h="Points">${g.points}</td><td class="n" data-h="Average">${g.average == null ? "" : g.average}</td><td class="n" data-h="Total">${g.total}</td><td class="n" data-h="Overall rank">${num(g.rank)}</td><td class="n" data-h="Transfers (hit)">${g.transfers}${g.hit ? " (−" + g.hit + ")" : ""}</td><td data-h="Chip">${g.chip || ""}</td>`; tb.appendChild(tr); }); }
   }
 
   function polymarketPnl(d) {

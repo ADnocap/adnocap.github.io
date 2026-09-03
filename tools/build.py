@@ -10,7 +10,10 @@ A fragment starts with a small front-matter block:
     section: work | log | about | home
     path: work/phantom/          (output directory, index.html is written inside)
     scripts: charts              (optional; comma-separated: charts)
+    extra_scripts: live.js       (optional)
     -->
+Inside the body, ``<!--rt-->`` (in the kicker) becomes the reading time and ``<!-- toc -->``
+becomes an "On this page" list of the h2 headings when there are at least four of them.
     ...body html...
 
 No dependencies beyond the standard library. Output files are plain HTML and are committed.
@@ -74,6 +77,50 @@ def parse(text):
             meta[k.strip()] = v.strip()
     return meta, text[m.end():]
 
+SPY = """<script>(function(){var t=document.querySelector('.toc');if(!t)return;var links=[].slice.call(t.querySelectorAll('a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);function on(){var y=window.scrollY+140,cur=hs[0];hs.forEach(function(h){if(h.offsetTop<=y)cur=h;});links.forEach(function(a){a.parentNode.classList.toggle('on',!!cur&&a.getAttribute('href')==='#'+cur.id);});}window.addEventListener('scroll',on,{passive:true});window.addEventListener('resize',on);on();})();</script>
+"""
+
+def slug(text):
+    t = re.sub(r"<[^>]+>", "", text)
+    t = re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
+    return t[:60].rstrip("-") or "section"
+
+def enrich(body):
+    """Give every h2 an id, replace the reading-time and table-of-contents markers."""
+    seen = set()
+    heads = []
+    def fix(m):
+        attrs, text = m.group(1), m.group(2)
+        idm = re.search(r'id="([^"]+)"', attrs)
+        if idm:
+            hid = idm.group(1)
+        else:
+            hid = slug(text)
+            base, n = hid, 2
+            while hid in seen:
+                hid = f"{base}-{n}"; n += 1
+            attrs = f' id="{hid}"' + attrs
+        seen.add(hid)
+        heads.append((hid, re.sub(r"<[^>]+>", "", text)))
+        return f"<h2{attrs}>{text}</h2>"
+    body = re.sub(r"<h2([^>]*)>(.*?)</h2>", fix, body, flags=re.S)
+    text = re.sub(r'<script type="application/json".*?</script>', "", body, flags=re.S)
+    text = re.sub(r"<[^>]+>", " ", text)
+    words = len(text.split())
+    minutes = max(1, round(words / 230))
+    body = body.replace("<!--rt-->", f" &middot; {minutes} min read")
+    spy = ""
+    if "<!-- toc -->" in body:
+        if len(heads) >= 4:
+            items = "\n".join(f'<li><a href="#{h}">{t}</a></li>' for h, t in heads)
+            nav = ('<div class="toc-wrap"><nav class="toc" aria-label="On this page"><p class="toc-h">On this page</p>\n<ol>\n'
+                   + items + "\n</ol></nav></div>")
+            body = body.replace("<!-- toc -->", nav)
+            spy = SPY
+        else:
+            body = body.replace("<!-- toc -->", "")
+    return body, spy
+
 def build_one(path):
     meta, body = parse(path.read_text(encoding="utf-8"))
     out_dir = ROOT / meta.get("path", "")
@@ -88,8 +135,8 @@ def build_one(path):
         extra = extra.strip()
         if extra:
             scripts += f'<script src="{rel}{extra}" defer></script>\n'
-    if 'class="note"' in body and '<main class="article">' in body:
-        body = body.replace('<main class="article">', '<main class="article notes">', 1)
+    body, spy = enrich(body)
+    scripts += spy
     html = HEAD.format(
         title=meta["title"], description=meta.get("description", ""), url=url, rel=rel, site=SITE,
         cur_work=' aria-current="page"' if section == "work" else "",
