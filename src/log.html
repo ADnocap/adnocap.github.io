@@ -7,15 +7,15 @@ path: log/
 <main class="article">
 <p class="kicker">Log</p>
 <h1>Experiment log</h1>
-<p class="lede">The results that did not become claims. Each entry is a hypothesis, what happened, and the verdict, dated. Kept because the negative results are where most of the learning was, and because a portfolio that only shows wins is not a portfolio, it is an advertisement.</p>
-<p class="small">Verdicts: <span class="verdict killed">killed</span>: the idea was dropped. <span class="verdict kept">kept</span>: it shipped. <span class="verdict">finding</span>: a fact we now design around. <span class="verdict">inconclusive</span>: not enough evidence either way.</p>
+<p class="lede">These are the results that didn't become claims. Each entry has a date, the hypothesis, what happened and a verdict. It's kept because most of the learning was in the negative results, and because a portfolio that only shows the wins is an advertisement.</p>
+<p class="small">Verdicts: <span class="verdict killed">killed</span> means the idea was dropped. <span class="verdict kept">kept</span> means it shipped. <span class="verdict">finding</span> is a fact we now design around. <span class="verdict">inconclusive</span> means there wasn't enough evidence either way.</p>
 
 <div class="entry">
   <span class="when">2026-08</span>
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Fantasy Premier League</span></div>
   <h3>Balanced sample weights will help the predictor on high-scoring players</h3>
-  <p>Weighting training rows so that rare haulers count as much as blanks. Per-gameweek rank correlation fell from 0.747 to 0.662 and mean absolute error rose from 0.825 to 0.902. A Tweedie loss tried in the same session raised correlation by 0.0016 but worsened mean absolute error (0.825 to 0.828) and the error on players scoring four or more points, improving it only on the two low bins. Both rejected; the plain MAE objective stayed.</p>
+  <p>The training rows were weighted so that the rare haulers counted as much as blanks. Per-gameweek rank correlation fell from 0.747 to 0.662 and mean absolute error rose from 0.825 to 0.902. A Tweedie loss was tried in the same session. It raised correlation by 0.0016 but made mean absolute error worse (0.825 to 0.828), and it made the error on players scoring four or more points worse too, improving only the two low bins. Both were rejected and the plain MAE objective stayed.</p>
   </div>
 </div>
 <div class="entry">
@@ -23,7 +23,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict kept">kept</span><span class="proj">Fantasy Premier League</span></div>
   <h3>Player-prop betting odds carry information the other features lack</h3>
-  <p>Adding bookmaker anytime-scorer and assist odds cut mean absolute error from 0.9147 to 0.8914 (−2.5%) on eight held-out gameweeks and raised per-gameweek rank correlation in all eight (+0.0076 on average). A small effect that passed a sign test; shipped, at the cost of a paid data feed.</p>
+  <p>Bookmaker anytime-scorer and assist odds were added as features. Mean absolute error fell from 0.9147 to 0.8914 (−2.5%) on eight held-out gameweeks, and per-gameweek rank correlation rose in all eight (+0.0076 on average). It's a small effect, but it passed a sign test, so it shipped. The cost is a paid data feed.</p>
   </div>
 </div>
 <div class="entry">
@@ -31,7 +31,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">finding</span><span class="proj">Phantom</span></div>
   <h3>Phantom's signal is largely the low-volatility anomaly</h3>
-  <p>A naive sort on inverse trailing volatility has a higher raw rank IC (0.165 against 0.124) and is 0.63 rank-correlated with the model's forecast. Phantom's independent contribution is significant only inside the mid- and high-volatility terciles (spread t = 2.6 and 4.1); combining the two signals gives IC 0.157. Found during the July audit; now item four of the README's limitations.</p>
+  <p>A naive sort on inverse trailing volatility has a higher raw rank IC than the model (0.165 against 0.124) and is 0.63 rank-correlated with the model's forecast. Phantom's independent contribution is significant only inside the mid- and high-volatility terciles (spread t = 2.6 and 4.1). Combining the two signals gives IC 0.157. It was found during the July audit and it's now item four in the README's limitations.</p>
   </div>
 </div>
 <div class="entry">
@@ -39,7 +39,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Polymarket, June rewrite</span></div>
   <h3>Centring maker quotes on an options-implied fair value should improve a market-making strategy</h3>
-  <p>A fair value from Deribit's implied-volatility surface beat the market's own Brier score on 2.9 million observations (0.0631 against 0.0643). In an event-driven maker simulation, centring quotes on it hurt at every weight tried, down to 5%. The shipped maker quoted around the book mid; the model was not wired into it at all. Two bugs were found on the way: a double-counted trade feed (mirror legs) and a timestamp-unit error that voided one full simulation version.</p>
+  <p>A fair value built from Deribit's implied-volatility surface beat the market's own Brier score on 2.9 million observations (0.0631 against 0.0643). But in an event-driven maker simulation, centring the quotes on it hurt at every weight tried, all the way down to 5%. The shipped maker quoted around the book mid, and the model wasn't wired into it at all. Two bugs were found on the way: a double-counted trade feed (mirror legs) and a timestamp-unit error that voided one full simulation version.</p>
   </div>
 </div>
 <div class="entry">
@@ -47,7 +47,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">inconclusive</span><span class="proj">Polymarket research memo</span></div>
   <h3>A Deribit-anchored fair value prices Polymarket's daily crypto ladders better than the market</h3>
-  <p>Pre-registered gates over 1,304 markets from April to June. On daily "above" ladders the model was indistinguishable from the market mid (Brier difference −0.0012, 95% interval −0.0033 to +0.0008); on 4-hour up/down markets the market was clearly better (+0.0119). A taker-side test found a NO-side edge of 18 to 19 cents a contract on 71 to 108 trades, which the memo itself attributes to a launch-window effect. Re-tested days later at scale in the June rewrite (entry above): on 2.9 million observations over 7,402 daily markets the model did beat the market's Brier score (0.0631 against 0.0643), the taker-side edge did not reappear, and the fair value was left out of the shipped maker entirely. The 4-hour markets were not revisited.</p>
+  <p>The memo pre-registered its gates and ran them over 1,304 markets from April to June. On the daily "above" ladders the model was indistinguishable from the market mid (Brier difference −0.0012, 95% interval −0.0033 to +0.0008). On the 4-hour up/down markets the market was clearly better (+0.0119). A taker-side test found a NO-side edge of 18 to 19 cents a contract on 71 to 108 trades, which the memo itself puts down to a launch-window effect. It was re-tested days later at scale in the June rewrite (the entry above). On 2.9 million observations over 7,402 daily markets the model did beat the market's Brier score (0.0631 against 0.0643). The taker-side edge didn't come back, and the fair value stayed out of the shipped maker entirely. The 4-hour markets were not revisited.</p>
   </div>
 </div>
 <div class="entry">
@@ -55,7 +55,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">finding</span><span class="proj">Polymarket, favourite press</span></div>
   <h3>Where the live edge actually was</h3>
-  <p>Reconciling 3,037 live trades against on-chain fills: trades where the two asks summed to between 1.00 and 1.02 made $521 (n = 2,070, z = 2.39) and every wider-spread bucket lost; entries 10 to 15 minutes before settlement made money, entries 5 to 10 minutes before did not; ETH lost $181 over 718 trades. The reconciliation also cut the dashboard's +$549 to +$383 by removing phantom partial fills. My collaborator's analysis.</p>
+  <p>This one is my collaborator's analysis. Reconciling 3,037 live trades against the on-chain fills showed that trades where the two asks summed to between 1.00 and 1.02 made $521 (n = 2,070, z = 2.39), and every wider-spread bucket lost. Entries 10 to 15 minutes before settlement made money, and entries 5 to 10 minutes before didn't. ETH lost $181 over 718 trades. The reconciliation also took the dashboard's +$549 down to +$383 by removing phantom partial fills.</p>
   </div>
 </div>
 <div class="entry">
@@ -63,7 +63,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Polymarket, S7</span></div>
   <h3>An at-the-money strike strategy on hourly markets has a 98.8% win rate</h3>
-  <p>It did, with the settlement-time price used to choose the strike. With the entry-time price: 94.5% win rate, +0.52% return on stake, an annualised Sharpe on daily backtest P&amp;L of 0.85 instead of 9.5, over 696 trades. Never traded. The postmortem's takeaway is now a written rule in the repository (verify that a backtest uses only information available at decision time), and later backtests carry that no-look-ahead check explicitly. <a href="../work/polymarket/#postmortem-1">Full postmortem.</a></p>
+  <p>It did, as long as the strike was chosen using the settlement-time price. With the entry-time price it's a 94.5% win rate, +0.52% return on stake and an annualised Sharpe on daily backtest P&amp;L of 0.85 instead of 9.5, over 696 trades. It was never traded. The takeaway from the postmortem is now a written rule in the repository: check that a backtest only uses information that was available at decision time. The later backtests carry that no-look-ahead check explicitly. <a href="../work/polymarket/#postmortem-1">Full postmortem.</a></p>
   </div>
 </div>
 <div class="entry">
@@ -71,7 +71,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Polymarket, S5 on 5-minute markets</span></div>
   <h3>The favourite-press rule transfers from 15-minute to 5-minute markets</h3>
-  <p>Backtests said yes. Live: 216 trades, 71.3% win rate, −$494, at entry prices where 71% is below break-even. The loss sat in the 0.68 to 0.83 entry band, which ran below break-even live on the 5-minute cadence despite positive backtests; the fills themselves were clean, so the backtest, not the execution, was wrong. Cut entirely; the 15-minute variant was tightened at the same time. <a href="../work/polymarket/#postmortem-2">Full postmortem.</a></p>
+  <p>The backtests said yes. Live it was 216 trades, a 71.3% win rate and −$494, at entry prices where 71% is below break-even. The loss sat in the 0.68 to 0.83 entry band, which ran below break-even live on the 5-minute cadence even though the backtests were positive. The fills themselves were clean, so the fault was in the backtest. It was cut entirely, and the 15-minute variant was tightened at the same time. <a href="../work/polymarket/#postmortem-2">Full postmortem.</a></p>
   </div>
 </div>
 <div class="entry">
@@ -79,7 +79,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Polymarket, S6 machine-learned gate</span></div>
   <h3>A LightGBM expected-value gate improves the favourite press on 5-minute markets</h3>
-  <p>Walk-forward it showed 81.0% win rate. Live on 5-minute markets: 288 trades, +$4.61, ETH below break-even. XRP was dropped from the gate for miscalibration and the gate was moved to the 15-minute cadence. Calibrated where it traded, flat in practice.</p>
+  <p>Walk-forward it showed an 81.0% win rate. Live on 5-minute markets it made 288 trades and +$4.61, with ETH below break-even. XRP was dropped from the gate for miscalibration and the gate was moved to the 15-minute cadence. It was well calibrated where it traded, and flat in practice.</p>
   </div>
 </div>
 <div class="entry">
@@ -87,7 +87,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">finding</span><span class="proj">Polymarket, S1 streak reversal</span></div>
   <h3>Taker execution destroys a small edge</h3>
-  <p>After three to five same-direction 5-minute outcomes the next reverses 53 to 57% of the time. As a maker, 2,745 out-of-sample trades make $64; as a taker the identical trades lose $95, because the crypto taker fee was 7.2%. Every configuration tested had the same sign flip. The design rule became: post-only or nothing.</p>
+  <p>After three to five same-direction 5-minute outcomes, the next one reverses 53 to 57% of the time. As a maker, 2,745 out-of-sample trades make $64. As a taker the identical trades lose $95, because the crypto taker fee was 7.2%. Every configuration tested had the same sign flip. The design rule since then is post-only or nothing.</p>
   </div>
 </div>
 <div class="entry">
@@ -95,7 +95,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">finding</span><span class="proj">Polymarket, sizing study</span></div>
   <h3>Sizing rules cannot manufacture Sharpe</h3>
-  <p>Walk-forward over 8,726 markets: half-Kelly sizing multiplied profit and drawdown by 2.5 and left the per-trade Sharpe at 0.38; rule-based size tilts lowered it to 0.34; the production entry filter alone had raised it from 0.27 to 0.38, and a logistic expected-value gate reached 0.41 with a third fewer trades. Edge comes from selection, not from position size.</p>
+  <p>In a walk-forward over 8,726 markets, half-Kelly sizing multiplied profit and drawdown by 2.5 and left the per-trade Sharpe at 0.38. Rule-based size tilts lowered it to 0.34. The production entry filter on its own had already raised it from 0.27 to 0.38, and a logistic expected-value gate got to 0.41 with a third fewer trades. The improvement came from trade selection, and sizing added none of it.</p>
   </div>
 </div>
 <div class="entry">
@@ -103,7 +103,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Polymarket, first-generation strategies</span></div>
   <h3>An Avellaneda-Stoikov market maker with a toxicity regime switch can make money on multi-outcome markets</h3>
-  <p>Eleven live days from 28 March: the market maker lost $168.64, the dispersion trade and the tail position roughly broke even. All three retired on 9 April when the favourite-press strategies replaced them.</p>
+  <p>They ran live for eleven days from 28 March. The market maker lost $168.64, and the dispersion trade and the tail position roughly broke even. All three were retired on 9 April when the favourite-press strategies replaced them.</p>
   </div>
 </div>
 <div class="entry">
@@ -111,7 +111,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Phantom on Polymarket</span></div>
   <h3>Mid-price limit orders capture the same edge as paying the ask</h3>
-  <p>Same signals, mid-price fills instead of the ask: win rate fell from 67% to 54% and the backtest ended at $787 instead of $4,714. Adverse selection: the orders that fill are the ones the market has already moved against. Also killed in the same study: ETH range markets (36% win rate over 807 signals), sizing above 2% of capital (3% went bankrupt), and active take-profit/stop-loss management, which lost while holding to settlement made money.</p>
+  <p>With the same signals but mid-price fills instead of paying the ask, the win rate fell from 67% to 54% and the backtest ended at $787 instead of $4,714. That's adverse selection. The orders that fill are the ones the market has already moved against. The same study also killed: ETH range markets (36% win rate over 807 signals), sizing above 2% of capital (3% went bankrupt), and active take-profit/stop-loss management, which lost money while holding to settlement made money.</p>
   </div>
 </div>
 <div class="entry">
@@ -119,7 +119,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Phantom</span></div>
   <h3>Pretraining on synthetic stochastic-process paths transfers to real markets</h3>
-  <p>Versions 1 and 2 reached the oracle CRPS on synthetic data (0.064 against a theoretical floor of 0.065) and transferred nothing: on real BTC the fine-tuned model's CRPS matched a post-hoc Gaussian. Version 3 on real multi-asset data gave calibrated uncertainty and zero directional signal (IC 0.00); version 4 on absolute multi-horizon returns memorised training directions. The signal appeared only when the target became the cross-sectionally demeaned return (version 5).</p>
+  <p>Versions 1 and 2 reached the oracle CRPS on synthetic data (0.064 against a theoretical floor of 0.065) and none of it transferred. On real BTC the fine-tuned model's CRPS matched a post-hoc Gaussian. Version 3, on real multi-asset data, gave calibrated uncertainty and zero directional signal (IC 0.00). Version 4, on absolute multi-horizon returns, memorised the training directions. The signal only appeared when the target became the cross-sectionally demeaned return (version 5).</p>
   </div>
 </div>
 <div class="entry">
@@ -127,7 +127,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Phantom</span></div>
   <h3>Funding rates, taker-buy ratios and 4-hour bars add information</h3>
-  <p>Funding-rate and taker-buy features changed IC by −0.0014 and −0.0005; the gain attributed to that version came from training on crypto only. Four-hour bars lowered 10-day IC from 0.140 to 0.095 because adjacent windows share 99.7% of their bars. Widening the universe from 60 to 362 coins (version 8) lowered mean IC slightly and diversified the long-short portfolio, which is a breadth effect, not a better model.</p>
+  <p>Funding-rate and taker-buy features changed IC by −0.0014 and −0.0005. The gain that version got credit for came from training on crypto only. Four-hour bars lowered 10-day IC from 0.140 to 0.095, because adjacent windows share 99.7% of their bars. Widening the universe from 60 to 362 coins (version 8) lowered mean IC slightly and diversified the long-short portfolio. That gain comes from breadth, and the model itself is no better.</p>
   </div>
 </div>
 <div class="entry">
@@ -135,7 +135,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">IMC Prosperity 4</span></div>
   <h3>Four signals that did not survive an overfitting audit</h3>
-  <p>An option-implied drift signal (+4,716 in-sample) had a train-to-holdout correlation of −0.700 across 26 random-search configurations and beat the baseline on both in none. A cross-strike spread (+11,265) was a mid-to-mid accounting artefact: no configuration in the threshold sweep survived realistic fills (the best made +20 over three days on three trades). Counterparty identifiers lost in all nine variants. A round-5 overlay was shown to be a no-op by byte-identical trade histories across three submissions. Also: the portal's 1,000-tick preview backtest is noise; our shipped round-3 trader showed +17,449 there and made +11,141 over the full 10,000 ticks.</p>
+  <p>An option-implied drift signal (+4,716 in-sample) had a train-to-holdout correlation of −0.700 across 26 random-search configurations, and none of them beat the baseline on both. A cross-strike spread (+11,265) was a mid-to-mid accounting artefact. No configuration in the threshold sweep survived realistic fills (the best made +20 over three days on three trades). Counterparty identifiers lost in all nine variants. A round-5 overlay was shown to be a no-op by byte-identical trade histories across three submissions. And the portal's 1,000-tick preview backtest is noise. Our shipped round-3 trader showed +17,449 there and made +11,141 over the full 10,000 ticks.</p>
   </div>
 </div>
 <div class="entry">
@@ -143,7 +143,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict kept">kept</span><span class="proj">Fantasy Premier League</span></div>
   <h3>The game's own expected-points field is a frozen pre-match prediction, not a post-match leak</h3>
-  <p>A contributor's report argued the feature was contaminated and that a 3,376-point season built on it was invalid. Capturing the field live mid-gameweek for players who had already scored heavily showed it frozen at its deadline value, and reproducing its formula matched 426 of 429 live values (99.3%). The feature was kept and is the most important one in the production model. The disputed season score was retired anyway when the honest replay harness replaced it.</p>
+  <p>A contributor's report argued that the feature was contaminated and that a 3,376-point season built on it was invalid. Capturing the field live mid-gameweek for players who had already scored heavily showed it frozen at its deadline value. Reproducing its formula matched 426 of 429 live values (99.3%). The feature was kept, and it's the most important one in the production model. The disputed season score was retired anyway when the replay harness replaced it.</p>
   </div>
 </div>
 <div class="entry">
@@ -151,7 +151,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">inconclusive</span><span class="proj">Reliability-engineering LLM</span></div>
   <h3>GRPO on the fine-tuned model improves reasoning on hard questions</h3>
-  <p>On 266 questions the base model solves inconsistently, GRPO from the fine-tuned checkpoint reached 57.9% at step 80 against 50.8%, McNemar p = 0.056, then declined to 54.1% and 52.3% with more steps. On a 54-question independent holdout neither GRPO variant moved the needle (p above 0.8). Led by my co-author. Suggestive, not settled.</p>
+  <p>My co-author led this one. On the 266 questions that the base model solves inconsistently, GRPO from the fine-tuned checkpoint reached 57.9% at step 80 against 50.8% (McNemar p = 0.056), then dropped to 54.1% and 52.3% with more steps. On a 54-question independent holdout neither GRPO variant made a difference (p above 0.8). The step-80 result is suggestive, not settled.</p>
   </div>
 </div>
 <div class="entry">
@@ -159,7 +159,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">finding</span><span class="proj">Reliability-engineering LLM</span></div>
   <h3>Paraphrases teach more than hard problems, and cross-validation flatters</h3>
-  <p>Sixty-five harder generated questions moved accuracy by +2.0 points (p = 0.69); 586 paraphrases with frozen numbers moved it by +18.6 (p = 0.002). The folds were shuffled at the question level, so paraphrases leak across the split; on an independent 54-question holdout the headline adapter scored 55.6% against the base model's 59.3%, and an adapter trained on a 600-question subset fell to 33.3% against 53.7%. Grouped folds are the next experiment.</p>
+  <p>Sixty-five harder generated questions moved accuracy by +2.0 points (p = 0.69). The 586 paraphrases with frozen numbers moved it by +18.6 (p = 0.002). But the folds were shuffled at the question level, so paraphrases leak across the split. On an independent 54-question holdout the headline adapter scored 55.6% against the base model's 59.3%, and an adapter trained on a 600-question subset fell to 33.3% against 53.7%. Grouped folds are the next experiment.</p>
   </div>
 </div>
 <div class="entry">
@@ -167,7 +167,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">Reliability-engineering LLM</span></div>
   <h3>Direct preference optimisation and an early GRPO beat supervised fine-tuning</h3>
-  <p>DPO on 215 questions: −1.7 points. GRPO with a judge-model reward through TRL: +0.5. At the end of March, the +7.0-point supervised result from an earlier run had been re-evaluated with greedy decoding and became +2.3; every cross-validation number reported since uses greedy decoding.</p>
+  <p>DPO on 215 questions gave −1.7 points. GRPO with a judge-model reward through TRL gave +0.5. At the end of March the +7.0-point supervised result from an earlier run was re-evaluated with greedy decoding and came out at +2.3. Every cross-validation number reported since then uses greedy decoding.</p>
   </div>
 </div>
 <div class="entry">
@@ -175,7 +175,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict">finding</span><span class="proj">Reliability-engineering LLM</span></div>
   <h3>Fine-tuning a thinking model on non-thinking solutions collapses its reasoning</h3>
-  <p>All fine-tuned responses in the first fold had empty thinking blocks; answers were eight times shorter than the base model's (679 against 5,489 characters) and 9.3% looped. Thinking mode was disabled for training and evaluation thereafter.</p>
+  <p>Every fine-tuned response in the first fold had an empty thinking block. The answers were eight times shorter than the base model's (679 against 5,489 characters) and 9.3% of them looped. After that, thinking mode was disabled for training and evaluation.</p>
   </div>
 </div>
 <div class="entry">
@@ -183,7 +183,7 @@ path: log/
   <div class="body">
   <div class="head"><span class="verdict killed">killed</span><span class="proj">DeFi Sentinel (HackEurope)</span></div>
   <h3>A rug-pull classifier with AUC 0.9995 is the one to ship</h3>
-  <p>The best-scoring model drew 89% of its importance from deployer-history features that are unavailable at the moment a new token is scanned. The team shipped a model restricted to 77 features that exist at scan time (AUC 0.999 on a temporal split, with over half of its importance in one metadata-completeness feature). An audit of the public dataset's labels had also found that 67.4% of tokens labelled legitimate had had 95% or more of their liquidity drained, so the labels themselves were noisy. Hackathon-scale evidence, stated as such.</p>
+  <p>The best-scoring model got 89% of its importance from deployer-history features, which aren't available at the moment a new token is scanned. The team shipped a model restricted to the 77 features that exist at scan time (AUC 0.999 on a temporal split, with over half of its importance in one metadata-completeness feature). An audit of the public dataset's labels had also found that 67.4% of the tokens labelled legitimate had had 95% or more of their liquidity drained, so the labels themselves were noisy. All of this is hackathon-scale evidence.</p>
   </div>
 </div>
 </main>

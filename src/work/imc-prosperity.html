@@ -1,6 +1,6 @@
 <!--
 title: IMC Prosperity 4 · Alexandre Dalban
-description: Team of three, rank 458 of 18,803 in IMC's Prosperity 4 algorithmic trading competition, with a calibrated Rust market simulator, an Optuna optimiser with overfitting checks, and five documented dead ends.
+description: Our team of three finished 458th of 18,803 in IMC's Prosperity 4 algorithmic trading competition. We built a calibrated Rust market simulator and an Optuna optimiser with overfitting checks, and wrote up five dead ends.
 section: work
 path: work/imc-prosperity/
 scripts: charts
@@ -8,12 +8,12 @@ scripts: charts
 <main class="article">
 <p class="kicker">Work · competition<!--rt--></p>
 <h1>IMC Prosperity 4</h1>
-<p class="lede">Sixteen days, five rounds, one Python file per round traded against the exchange's bots. Our team of three finished 458th of 18,803 teams. The infrastructure we built to get there is the part I would show.</p>
+<p class="lede">The competition ran for sixteen days over five rounds. Each round we submitted one Python file that traded against the exchange's bots. Our team of three finished 458th of 18,803 teams. The part I'd show is the infrastructure we built to get there.</p>
 
 <dl class="meta">
   <dt>Dates</dt><dd>14 to 30 April 2026</dd>
-  <dt>Status</dt><dd>Finished. Rank 458, Finalist Crew, 338,701.77 XIRECs (the competition's fictional currency)</dd>
-  <dt>Role</dt><dd>Team of three; I authored about three quarters of the commits, including the simulator, the optimiser framework and the rounds 1 to 3 trader. <a href="#credits">Credits</a>.</dd>
+  <dt>Status</dt><dd>Finished at rank 458, Finalist Crew, with 338,701.77 XIRECs (the competition's fictional currency)</dd>
+  <dt>Role</dt><dd>One of a team of three. I wrote about three quarters of the commits, including the simulator, the optimiser framework and the rounds 1 to 3 trader. <a href="#credits">Credits</a>.</dd>
   <dt>Code</dt><dd><a href="https://github.com/ADnocap/IMC_Prosperity4">github.com/ADnocap/IMC_Prosperity4</a>, public</dd>
 </dl>
 <!-- toc -->
@@ -24,17 +24,17 @@ scripts: charts
 </figure>
 
 <h2>Simulate the exchange, do not replay it</h2>
-<p>The competition's markets are made by a few scripted bots around a hidden fair value. Replaying historical CSVs assumes your orders would not have changed anything; we instead reverse-engineered the bots and simulated the market. The trick, inherited from the open-source tooling: submit a trader that buys one unit at the first tick and holds, so the exchange's own P&amp;L log reveals the fair-value path.</p>
-<p>Brute-force search over quoting formulas then matched the bots' published quotes exactly: 99.7 to 100% for the two bots on one product, 99.9% and 99.0% on another, including the non-obvious discovery that one set of bots quoted proportional offsets, floor(FV × (1 − 3/4000)), rather than fixed ticks. On matched fair-value paths the simulator reproduced the portal's P&amp;L within 0.8% in total.</p>
-<p>I refactored the inherited single-file Rust simulator into a per-asset plug-in architecture, added the twelve round-3 products, and for round 5 rebuilt it as a two-layer scenario engine: joint fair-value paths that honour hidden constraints the data analysis had found (five products summing to exactly 50,000; a pair whose sum drifted only slowly, with a within-day standard deviation far below that of either leg; a triplet tied by a looser weighted linear relation), plus three shared Poisson trade-burst processes across 50 products, because trades arrived in synchronised bursts rather than 50 independent streams. Across those changes the simulator grew from 1,872 to 5,923 lines.</p>
+<p>The competition's markets are made by a few scripted bots around a hidden fair value. Replaying the historical CSVs assumes our orders wouldn't have changed anything, so we reverse-engineered the bots and simulated the market instead. The trick came from the open-source tooling. Submit a trader that buys one unit at the first tick and holds, and the exchange's own P&amp;L log gives away the fair-value path.</p>
+<p>A brute-force search over quoting formulas then matched the bots' published quotes exactly, 99.7 to 100% for the two bots on one product and 99.9% and 99.0% on another. A non-obvious finding was that one set of bots quoted proportional offsets, floor(FV × (1 − 3/4000)), instead of fixed ticks. On matched fair-value paths the simulator reproduced the portal's P&amp;L to within 0.8% in total.</p>
+<p>The simulator we inherited was a single Rust file. I refactored it into a per-asset plug-in architecture and added the twelve round-3 products. For round 5 I rebuilt it as a two-layer scenario engine. The first layer generates joint fair-value paths that honour the hidden constraints the data analysis had found. Five products summed to exactly 50,000. One pair's sum drifted only slowly, with a within-day standard deviation far below that of either leg. A triplet was tied by a looser weighted linear relation. The second layer is three shared Poisson trade-burst processes across 50 products, because trades arrived in synchronised bursts and not as 50 independent streams. Across those changes the simulator grew from 1,872 to 5,923 lines.</p>
 
 <figure class="fig wide">
   <img src="../../assets/fig/imc/pebble_basket_sum.png" alt="Sum of five product mid-prices over 30,000 ticks hugging 50,000 with a standard deviation of 2.8, and a log-scale histogram of the deviations." width="1800" height="540" loading="lazy">
-  <figcaption>The round-5 hidden constraint: five products whose mid-prices sum to 50,000 with a standard deviation of 2.80 over 30,000 ticks. The principal-components analysis that found it had a smallest eigenvalue of 1.57 against 187,287 for the next. <span class="src">Source: round-5 exploratory analysis, 28 April 2026.</span></figcaption>
+  <figcaption>The round-5 hidden constraint. The mid-prices of five products sum to 50,000, with a standard deviation of 2.80 over 30,000 ticks. The principal-components analysis that found it had a smallest eigenvalue of 1.57, against 187,287 for the next one. <span class="src">Source: round-5 exploratory analysis, 28 April 2026.</span></figcaption>
 </figure>
 
-<p>On top of the simulator sat an Optuna optimiser with train, validation and test seed splits, a retest on fresh seeds at the end of every study, and anti-overfitting diagnostics: deflated Sharpe ratio, probability of backtest overfitting by combinatorial cross-validation, cluster stability and fANOVA. Round 3 ran five studies and 2,224 trials; the trader we shipped was the out-of-sample winner of the second study (deflated-Sharpe probability 1.0, overfitting probability 0.03).</p>
-<p>A browser workshop with thirteen market-microstructure kernels compiled from Rust to WebAssembly (microprice, queue imbalance, order-flow imbalance, mark-outs by counterparty, effective versus realised spread, lead-lag, pair spreads with half-life) ran in a web worker at 5 to 50 milliseconds per panel on 580,000-row rounds.</p>
+<p>On top of the simulator sat an Optuna optimiser. It splits seeds into train, validation and test sets, retests on fresh seeds at the end of every study, and runs anti-overfitting diagnostics: deflated Sharpe ratio, probability of backtest overfitting by combinatorial cross-validation, cluster stability and fANOVA. Round 3 ran five studies and 2,224 trials. The trader we shipped was the out-of-sample winner of the second study (deflated-Sharpe probability 1.0, overfitting probability 0.03).</p>
+<p>A browser workshop for the analysis had thirteen market-microstructure kernels (microprice, queue imbalance, order-flow imbalance, mark-outs by counterparty, effective versus realised spread, lead-lag, pair spreads with half-life) compiled from Rust to WebAssembly, running in a web worker. A panel took 5 to 50 milliseconds on 580,000-row rounds.</p>
 
 <h2>Results by round</h2>
 <div class="scroll">
@@ -45,25 +45,25 @@ scripts: charts
   <tr><td>3 (leaderboard reset to zero)</td><td class="n">11,141</td><td class="n">66,229</td><td class="n">1,998</td></tr>
   <tr><td>4</td><td class="n">70,320</td><td class="n">57,684</td><td class="n">716</td></tr>
   <tr class="best"><td>5 (final)</td><td class="n">66,247</td><td class="n">≈ 67,081</td><td class="n">458</td></tr>
-  <caption>XIRECs. The position after round 2 is the interim rank sometimes quoted for this team; the leaderboard restarted from zero for rounds 3 to 5 and 458 is the final rank. Round-5 manual P&amp;L is inferred from the final total.</caption>
+  <caption>P&amp;L in XIRECs. The position after round 2 is the interim rank that sometimes gets quoted for this team. The leaderboard restarted from zero for rounds 3 to 5, and 458 is the final rank. The round-5 manual P&amp;L is inferred from the final total.</caption>
 </table>
 </div>
 
 <figure class="fig">
   <img src="../../assets/fig/imc/round4_scorecard.png" alt="Portal scorecard for round 4: position 716, algorithmic result plus 70,320 with a cumulative P&L curve that dips early and recovers, manual result plus 57,684." width="672" height="921" loading="lazy">
-  <figcaption>The round-4 scorecard, our strongest algorithmic round after the reset: an early dip to about −35,000 and a recovery to +70,320 over 10,000 ticks. <span class="src">Source: competition portal screenshot.</span></figcaption>
+  <figcaption>The round-4 scorecard, our strongest algorithmic round after the reset. It dipped early to about −35,000 and recovered to +70,320 over 10,000 ticks. <span class="src">Source: competition portal screenshot.</span></figcaption>
 </figure>
 
 <h2>Five things we killed</h2>
 <ul>
-  <li>An option-implied drift signal that looked like +4,716 died in a 26-trial random search: train and holdout uplift were correlated at −0.700 and not one configuration beat the baseline on both.</li>
-  <li>A cross-strike spread trade showing +11,265 was a mid-to-mid accounting artefact; under realistic fills no configuration in the threshold sweep survived; the best made +20 over three days on three trades.</li>
-  <li>Delta-hedged short volatility on the option chain returned +166 to +1,033 a day in walk-forward, against planning estimates of +1,320 a round from decay alone and up to +18,600 if the vouchers expired to intrinsic.</li>
-  <li>Counterparty identifiers carried no alpha: all nine integration variants lost, the standalone version by 64,044 over three replay days.</li>
-  <li>In round 5 a "pulse tilt" overlay was proven a no-op by byte-identical trade histories across three submissions, so the final trader shipped with it disabled.</li>
+  <li>An option-implied drift signal that looked like +4,716 died in a 26-trial random search. Train and holdout uplift were correlated at −0.700, and not one configuration beat the baseline on both.</li>
+  <li>A cross-strike spread trade showing +11,265 was a mid-to-mid accounting artefact. With realistic fills no configuration in the threshold sweep survived, and the best one made +20 over three days on three trades.</li>
+  <li>Delta-hedged short volatility on the option chain returned +166 to +1,033 a day in walk-forward. Our planning estimates had been +1,320 a round from decay alone, and up to +18,600 if the vouchers expired to intrinsic.</li>
+  <li>Counterparty identifiers carried no alpha. All nine integration variants lost, and the standalone version lost 64,044 over three replay days.</li>
+  <li>In round 5 a "pulse tilt" overlay did nothing. We knew because three submissions came back with byte-identical trade histories, so the final trader shipped with it disabled.</li>
 </ul>
-<p>And one lesson about the tooling: the portal's 1,000-tick preview backtest is dominated by price-path luck. Our round-3 trader showed +17,449 there and made +11,141 in the 10,000-tick final, with the first thousand ticks of the final contributing +817.</p>
+<p>There's also one lesson about the tooling. The portal's 1,000-tick preview backtest is dominated by price-path luck. Our round-3 trader showed +17,449 there and made +11,141 in the 10,000-tick final, and the first thousand ticks of the final contributed +817.</p>
 
 <h2 id="credits">Credits</h2>
-<p>Team of three; I authored about three quarters of the commits. Mine: the simulator refactor and its round-3 and round-5 calibrations (my teammate contributed the round-5 triplet factor model), the Rust/WASM analysis workshop, the optimiser framework, the main trader line for rounds 1 to 3 and the manual-challenge solutions. My teammate led the round-1 bot calibration, the round-4 shipped trader and much of round 5. The backtester and visualiser skeleton were adapted from an open-source release by another team, credited in the repository.</p>
+<p>We were a team of three, and I wrote about three quarters of the commits. My parts were the simulator refactor and its round-3 and round-5 calibrations (my teammate contributed the round-5 triplet factor model), the Rust/WASM analysis workshop, the optimiser framework, the main trader line for rounds 1 to 3, and the manual-challenge solutions. My teammate led the round-1 bot calibration, the round-4 shipped trader and much of round 5. The backtester and visualiser skeleton came from an open-source release by another team, which we adapted and credit in the repository.</p>
 </main>

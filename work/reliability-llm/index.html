@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A domain-specific LLM for reliability engineering · Alexandre Dalban</title>
-<meta name="description" content="Bootstrapping 56 textbook problems into 866 verified training examples and fine-tuning Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions; joint MSc research, paper in preparation.">
+<meta name="description" content="We turned 56 textbook problems into 866 verified training examples and fine-tuned Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions. Joint MSc research, with the paper in preparation.">
 <meta property="og:title" content="A domain-specific LLM for reliability engineering · Alexandre Dalban">
-<meta property="og:description" content="Bootstrapping 56 textbook problems into 866 verified training examples and fine-tuning Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions; joint MSc research, paper in preparation.">
+<meta property="og:description" content="We turned 56 textbook problems into 866 verified training examples and fine-tuned Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions. Joint MSc research, with the paper in preparation.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://adnocap.github.io/work/reliability-llm/">
 <link rel="canonical" href="https://adnocap.github.io/work/reliability-llm/">
@@ -27,19 +27,19 @@
   </nav>
 </header>
 <main class="article">
-<p class="kicker">Work · LLM post-training research &middot; 5 min read</p>
+<p class="kicker">Work · LLM post-training research &middot; 6 min read</p>
 <h1>A domain-specific LLM for reliability engineering</h1>
-<p class="lede">There was no training data for reliability engineering, so we made some: 56 textbook problems became 866 verified question-answer pairs, and an 8B model went from 63.6% to 82.2% on them. The interesting findings are about what did not work.</p>
+<p class="lede">There was no training data for reliability engineering, so we made some. We turned 56 textbook problems into 866 verified question-answer pairs, and an 8B model went from 63.6% to 82.2% on them. The results I find most interesting are the ones about what didn't work.</p>
 
 <div class="stats">
-  <div class="stat"><span class="v">56 → 866</span><span class="l">textbook seeds to verified training examples</span></div>
-  <div class="stat"><span class="v">+18.6<small>pp</small></span><span class="l">63.6% to 82.2% accuracy, 10-fold cross-validation, Wilcoxon p = 0.002</span></div>
-  <div class="stat"><span class="v">26</span><span class="l">logged experiments on A100 nodes via SLURM, two of them failures</span></div>
+  <div class="stat"><span class="v">56 → 866</span><span class="l">textbook seeds turned into verified training examples</span></div>
+  <div class="stat"><span class="v">+18.6<small>pp</small></span><span class="l">accuracy went from 63.6% to 82.2% (10-fold cross-validation, Wilcoxon p = 0.002)</span></div>
+  <div class="stat"><span class="v">26</span><span class="l">experiments logged on A100 nodes through SLURM, two of them failures</span></div>
 </div>
 <dl class="meta">
   <dt>Dates</dt><dd>Late October 2025 to April 2026 (about six months, roughly 250 combined hours)</dd>
-  <dt>Status</dt><dd>Manuscript in preparation (CVPR-format draft). Not submitted, not published.</dd>
-  <dt>Role</dt><dd>Joint MSc research with Elora Drouilhet, supervised by Dr. Zhiguo Zeng (CentraleSupélec, LGI laboratory). I led the data pipeline, the supervised fine-tuning, the baselines and the paper draft. <a href="#credits">Credits</a>.</dd>
+  <dt>Status</dt><dd>The manuscript is in preparation (CVPR-format draft). It hasn't been submitted or published.</dd>
+  <dt>Role</dt><dd>Joint MSc research with Elora Drouilhet, supervised by Dr. Zhiguo Zeng (CentraleSupélec, LGI laboratory). I led the data pipeline, the supervised fine-tuning, the baselines and the paper draft. The <a href="#credits">credits</a> section has the full split.</dd>
   <dt>Code</dt><dd><a href="https://github.com/ADnocap/Reliability-Domain-Specific-LLM">github.com/ADnocap/Reliability-Domain-Specific-LLM</a>, public</dd>
 </dl>
 <div class="toc-wrap"><nav class="toc" aria-label="On this page"><p class="toc-h">On this page</p>
@@ -47,55 +47,55 @@
 <li><a href="#the-problem">The problem</a></li>
 <li><a href="#making-the-data">Making the data</a></li>
 <li><a href="#fine-tuning">Fine-tuning</a></li>
-<li><a href="#reinforcement-learning-and-an-honest-caveat">Reinforcement learning, and an honest caveat</a></li>
+<li><a href="#reinforcement-learning-and-a-caveat">Reinforcement learning, and a caveat</a></li>
 <li><a href="#what-i-would-do-differently">What I would do differently</a></li>
 <li><a href="#credits">Credits</a></li>
 </ol></nav></div>
 
 <h2 id="the-problem">The problem</h2>
-<p>Reliability engineering (Weibull and exponential lifetimes, mean time to failure, k-out-of-n systems, fault trees, Bayesian updating of failure rates) had no large public question-answer dataset and no established benchmark, and the lab had found frontier models unreliable on its own hand-written problems. Could a general 8B model be adapted to the domain starting from a handful of textbook exercises, on a student's compute budget?</p>
+<p>Reliability engineering (Weibull and exponential lifetimes, mean time to failure, k-out-of-n systems, fault trees, Bayesian updating of failure rates) had no large public question-answer dataset and no established benchmark. The lab had also found frontier models unreliable on its own hand-written problems. We wanted to know whether a general 8B model could be adapted to the domain starting from a handful of textbook exercises, on a student's compute budget.</p>
 
 <h2 id="making-the-data">Making the data</h2>
-<p>Two textbooks were digitised (32 chapters) and mined with regular expressions plus a language-model validator into 56 curated seed triplets of question, worked reasoning and numeric answer. A Self-Instruct loop then generated new problems in the style of the seeds, with one change that mattered: instead of the usual same-model consistency filter, every generated problem was solved independently by a second frontier model and kept only if the two answers agreed within 5%, with a semantic fallback for non-numeric cases. That produced 158 verified items.</p>
-<p>Merging them with the textbook seeds and cleaning the lot (splitting multi-part problems, deduplication, unit stripping) gave 256 entries, of which the 215 with numeric answers became the first training set. A "hard generation" round added 65 questions and a MetaMath-style paraphrase round, in which numbers and formulas are frozen and only the wording changes, added 586 more, for 866.</p>
+<p>We digitised two textbooks (32 chapters) and mined them with regular expressions plus a language-model validator, which gave 56 curated seed triplets of question, worked reasoning and numeric answer. A Self-Instruct loop then generated new problems in the style of the seeds. The one change that mattered was the filter. Instead of the usual same-model consistency check, a second frontier model solved every generated problem independently, and we kept a problem only if the two answers agreed within 5% (with a semantic fallback for non-numeric cases). That produced 158 verified items.</p>
+<p>We merged them with the textbook seeds and cleaned the lot (splitting multi-part problems, deduplication, unit stripping), which gave 256 entries. The 215 with numeric answers became the first training set. A "hard generation" round added 65 questions. A MetaMath-style paraphrase round, where the numbers and formulas are frozen and only the wording changes, added 586 more, for 866 in total.</p>
 
 <figure class="fig wide">
   <img src="../../assets/fig/reliability-llm/pipeline.png" alt="Five-stage pipeline diagram: textbook OCR and extraction to 56 seeds; generation with cross-model verification to 158 verified; cleaning to 215 numeric; hard generation and paraphrase augmentation to 866 examples; supervised fine-tuning of Qwen3-8B with QLoRA, then GRPO." width="1480" height="841" loading="lazy">
-  <figcaption>The data pipeline from the manuscript. Blue boxes are dataset milestones, green are model-based generation or verification steps, red is training. <span class="src">Source: manuscript draft, Figure 1.</span></figcaption>
+  <figcaption>The data pipeline, taken from the manuscript. Blue boxes are dataset milestones, green ones are model-based generation or verification steps, and red is training. <span class="src">Source: manuscript draft, Figure 1.</span></figcaption>
 </figure>
 
-<p>Two things we learned about synthetic data along the way. First, a <em>self-instruct ceiling</em>: generators write problems inside their own competence, so baseline models scored 92 to 97% on the generated questions but only 68 to 76% on the textbook ones. Verification does not fix that; it only removes wrong answers. Second, surface diversity beat difficulty: the 65 hard questions moved accuracy by +2.0 points (p = 0.69), the 586 paraphrases by +18.6 (p = 0.002).</p>
+<p>We learned two things about synthetic data along the way. The first is a <em>self-instruct ceiling</em>. Generators write problems inside their own competence, so baseline models scored 92 to 97% on the generated questions but only 68 to 76% on the textbook ones. Verification doesn't fix that. It only removes wrong answers. The second is that surface diversity beat difficulty: paraphrases helped more than harder questions did. The 65 hard questions moved accuracy by +2.0 points (p = 0.69) and the 586 paraphrases moved it by +18.6 (p = 0.002).</p>
 
 <figure class="fig">
   <div class="chart" data-chart="bars" data-src="#gain-by-size"></div>
-  <figcaption>Fine-tuning gain in accuracy points over the base model, by training-set size, best configuration at each size. Only the 866-example set is significant. <span class="src">Source: experiment log; 5-fold cross-validation for the first three, 10-fold for the last.</span></figcaption>
+  <figcaption>Gain in accuracy points over the base model after fine-tuning, by training-set size, using the best configuration at each size. Only the 866-example set is significant. <span class="src">Source: experiment log; 5-fold cross-validation for the first three, 10-fold for the last.</span></figcaption>
 </figure>
 <script type="application/json" id="gain-by-size">{"categories":["215 (p = 0.50)","280 (p = 0.69)","501 (p = 0.063)","866 (p = 0.002)"],"values":[2.3,2.0,6.2,18.6],"unit":" pp","showValues":true,"ymin":0,"ymax":22,"ylabel":"Accuracy gain over base, percentage points","xhead":"Training examples","yhead":"Gain (pp)","label":"Fine-tuning gain by dataset size","height":250}</script>
 
 <h2 id="fine-tuning">Fine-tuning</h2>
-<p>Qwen3-8B, 4-bit QLoRA through Unsloth, LoRA rank 16 and alpha 32 on all attention and MLP projections, NEFTune noise, thinking mode off, greedy decoding at evaluation, a fresh base model per fold, and a Wilcoxon signed-rank test over the per-fold accuracies. Early stopping with patience two selected epoch four regardless of the maximum I set. On the 866-example set with 10 folds the base model answers 63.6% correctly and the fine-tuned model 82.2%; every fold improved, by 12.6 to 26.4 points, and 206 questions flipped from wrong to right against 45 the other way.</p>
+<p>I fine-tuned Qwen3-8B with 4-bit QLoRA through Unsloth, with LoRA rank 16 and alpha 32 on all attention and MLP projections, NEFTune noise and thinking mode off. Evaluation used greedy decoding, a fresh base model per fold, and a Wilcoxon signed-rank test over the per-fold accuracies. Early stopping with patience two picked epoch four whatever maximum I set. On the 866-example set with 10 folds the base model answers 63.6% correctly and the fine-tuned model 82.2%. Every fold improved, by 12.6 to 26.4 points, and 206 questions flipped from wrong to right against 45 the other way.</p>
 
 <figure class="fig">
   <div class="chart" data-chart="dots" data-src="#folds"></div>
-  <figcaption>Per-fold accuracy before and after fine-tuning, 10-fold cross-validation on the 866-example set. <span class="src">Source: the experiment's cross-validation summary file.</span></figcaption>
+  <figcaption>Per-fold accuracy before and after fine-tuning, from the 10-fold cross-validation on the 866-example set. <span class="src">Source: the experiment's cross-validation summary file.</span></figcaption>
 </figure>
 <script type="application/json" id="folds">{"categories":["fold 0","fold 1","fold 2","fold 3","fold 4","fold 5","fold 6","fold 7","fold 8","fold 9"],"before":[67.8,65.5,64.4,63.2,67.8,60.9,67.4,57.0,57.0,65.1],"after":[80.5,81.6,80.5,89.7,80.5,85.1,81.4,81.4,76.7,84.9],"names":["base model","fine-tuned"],"unit":"%","xhead":"Fold","label":"Per-fold accuracy before and after fine-tuning"}</script>
 
-<p>Base-model choice dominated every other decision: on the same 215 numeric questions Qwen3-8B scored 70.7% zero-shot against 41.4% for Llama 3.1 8B (37.5% over the full 256-question cleaned set, which also includes formula and text items).</p>
-<p>Two evaluation lessons came out of the early Qwen3-8B runs. An early run reported +7.0 points; re-run with greedy decoding it was +2.3, the rest being sampling variance, and every cross-validation number from that re-run on, the +18.6 included, is greedy. And fine-tuning a thinking model on polished non-thinking solutions collapsed its reasoning: the fine-tuned model emitted empty thinking blocks and answers eight times shorter than the base model's.</p>
+<p>The choice of base model mattered more than any other decision. On the same 215 numeric questions Qwen3-8B scored 70.7% zero-shot against 41.4% for Llama 3.1 8B (37.5% over the full 256-question cleaned set, which also includes formula and text items).</p>
+<p>Two evaluation lessons came out of the early Qwen3-8B runs. One early run reported +7.0 points. Re-run with greedy decoding it was +2.3, and the rest was sampling variance. Every cross-validation number from that re-run on, the +18.6 included, is greedy. The other lesson was that fine-tuning a thinking model on polished non-thinking solutions collapsed its reasoning. The fine-tuned model emitted empty thinking blocks and answers eight times shorter than the base model's.</p>
 
 <h3>Where it stands against frontier models</h3>
-<p>On a 500-question sample of the same benchmark, run through an API at temperature 0.1 with no extended thinking requested (o3-mini at its lowest reasoning effort; Gemini 3.1 Pro, whose thinking cannot be switched off, at its default level), Claude Sonnet 4.6 scored 92.4%, o3-mini 86.4% and Gemini 3.1 Pro 76.4% of the answers they returned in a parseable form (85.4% and 61.6% of all 500 questions; Gemini's thinking mode left 97 answers unparseable). The fine-tuned 8B model's 82.2% sits between them. The comparison is informative but not clean: the small model's number is in-distribution cross-validation on a paraphrase-heavy set, the frontier numbers are zero-shot.</p>
+<p>I ran the frontier models on a 500-question sample of the same benchmark, through an API at temperature 0.1 with no extended thinking requested (o3-mini at its lowest reasoning effort, and Gemini 3.1 Pro, whose thinking can't be switched off, at its default level). Claude Sonnet 4.6 scored 92.4%, o3-mini 86.4% and Gemini 3.1 Pro 76.4% of the answers they returned in a parseable form. Counted over all 500 questions instead, the figures are 85.4% and 61.6%, and Gemini's thinking mode left 97 answers unparseable. The fine-tuned 8B model's 82.2% sits between them. The comparison is informative but it isn't clean. The small model's number is in-distribution cross-validation on a paraphrase-heavy set, and the frontier numbers are zero-shot.</p>
 
 <figure class="fig">
   <div class="chart" data-chart="hbars" data-src="#frontier"></div>
-  <figcaption>Accuracy on reliability-engineering questions. Frontier models zero-shot on a 500-question sample, scored over the answers they returned in a parseable form; the fine-tuned model under 10-fold cross-validation. Not a like-for-like protocol. <span class="src">Source: baseline runs in the repository and the manuscript's comparison table.</span></figcaption>
+  <figcaption>Accuracy on reliability-engineering questions. The frontier models are zero-shot on a 500-question sample, scored over the answers they returned in a parseable form. The fine-tuned model is under 10-fold cross-validation. The protocols aren't like for like. <span class="src">Source: baseline runs in the repository and the manuscript's comparison table.</span></figcaption>
 </figure>
 <script type="application/json" id="frontier">{"categories":["Claude Sonnet 4.6, zero-shot","o3-mini, zero-shot (parseable)","Qwen3-8B fine-tuned, 10-fold CV","Gemini 3.1 Pro, zero-shot (parseable)","Qwen3-8B base"],"values":[92.4,86.4,82.2,76.4,63.6],"unit":"%","highlight":[2],"labelWidth":230,"xhead":"Model","yhead":"Accuracy","label":"Accuracy against frontier models"}</script>
 
-<h2 id="reinforcement-learning-and-an-honest-caveat">Reinforcement learning, and an honest caveat</h2>
-<p>The second stage, led by my co-author, applied GRPO with graded verifiable rewards and DAPO-style dynamic sampling on the 266 questions the base model solves inconsistently (one to three of four samples). Starting from a separate fine-tuning checkpoint trained only on the other 600 questions (the ones screened out of the GRPO set), not the 82.2% headline adapter, accuracy on those 266 questions rose from 50.8% to 57.9% at step 80 (McNemar p = 0.056, not significant at 5%), then declined with more steps. Direct preference optimisation had earlier hurt (−1.7 points) and an initial GRPO attempt with a judge-model reward added only +0.5.</p>
-<p>The caveat that belongs next to the headline: the +18.6 points is in-distribution. Cross-validation folds were shuffled at the question level, so paraphrases of a training question can sit in the test fold. On a 54-question independent holdout the picture is weaker: a fine-tuned adapter trained on a 600-question subset fell to 33.3% against the base model's 53.7% (p = 0.019), while the headline adapter evaluated greedily scored 55.6% against 59.3%, a difference within noise. The GRPO variants stayed near the base model on that holdout. We read this as a small-data forgetting problem that the manuscript's next revision, with grouped folds, has to settle before any claim of transfer.</p>
+<h2 id="reinforcement-learning-and-a-caveat">Reinforcement learning, and a caveat</h2>
+<p>My co-author led the second stage, which applied GRPO with graded verifiable rewards and DAPO-style dynamic sampling on the 266 questions the base model solves inconsistently (one to three of four samples). It started from a separate fine-tuning checkpoint trained only on the other 600 questions (the ones screened out of the GRPO set), not from the 82.2% headline adapter. Accuracy on those 266 questions rose from 50.8% to 57.9% at step 80 (McNemar p = 0.056, not significant at 5%), then declined with more steps. Direct preference optimisation had hurt earlier (−1.7 points), and a first GRPO attempt with a judge-model reward added only +0.5.</p>
+<p>The +18.6 points is an in-distribution number, and that caveat belongs next to the headline. The cross-validation folds were shuffled at the question level, so paraphrases of a training question can sit in the test fold. On a 54-question independent holdout the picture is weaker. A fine-tuned adapter trained on a 600-question subset fell to 33.3% against the base model's 53.7% (p = 0.019). The headline adapter, evaluated greedily, scored 55.6% against 59.3%, which is within noise. The GRPO variants stayed near the base model on that holdout. We read this as a small-data forgetting problem. The manuscript's next revision, with grouped folds, has to settle it before we claim any transfer.</p>
 
 <h2 id="what-i-would-do-differently">What I would do differently</h2>
 <ul>
@@ -105,7 +105,7 @@
 </ul>
 
 <h2 id="credits">Credits</h2>
-<p>Joint MSc research project with Elora Drouilhet, supervised by Dr. Zhiguo Zeng at CentraleSupélec's LGI laboratory. I led the data pipeline (seed extraction, cross-model verification, paraphrase augmentation), the supervised fine-tuning, the frontier-model baselines and the cluster work, and drafted the paper; the evaluation framework was shared work, and the reinforcement-learning stage was led by my co-author with my support.</p>
+<p>This was a joint MSc research project with Elora Drouilhet, supervised by Dr. Zhiguo Zeng at CentraleSupélec's LGI laboratory. I led the data pipeline (seed extraction, cross-model verification, paraphrase augmentation), the supervised fine-tuning, the frontier-model baselines and the cluster work, and I drafted the paper. The evaluation framework was shared work. My co-author led the reinforcement-learning stage, with my support.</p>
 </main>
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
