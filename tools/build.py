@@ -144,7 +144,7 @@ def build_one(path):
         cur_about=' aria-current="page"' if section == "about" else "",
     ) + body.strip() + FOOT.format(rel=rel, scripts=scripts, updated=datetime.date.today().strftime("%B %Y"))
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "index.html").write_text(html, encoding="utf-8")
+    (out_dir / "index.html").write_text(html, encoding="utf-8", newline="\n")
     return out_dir / "index.html"
 
 def main():
