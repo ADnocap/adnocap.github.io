@@ -18,7 +18,7 @@ becomes an "On this page" list of the h2 headings when there are at least four o
 
 No dependencies beyond the standard library. Output files are plain HTML and are committed.
 """
-import pathlib, re, sys, datetime
+import pathlib, re, sys, datetime, hashlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -41,7 +41,7 @@ HEAD = """<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{rel}style.css">
+<link rel="stylesheet" href="{rel}style.css?v={ver}">
 <script>(function(){{var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);}})();</script>
 </head>
 <body>
@@ -130,15 +130,15 @@ def build_one(path):
     url = BASE + "/" + meta.get("path", "")
     scripts = ""
     if "charts" in meta.get("scripts", ""):
-        scripts += f'<script src="{rel}charts.js" defer></script>\n'
+        scripts += f'<script src="{rel}charts.js?v={VER}" defer></script>\n'
     for extra in meta.get("extra_scripts", "").split(","):
         extra = extra.strip()
         if extra:
-            scripts += f'<script src="{rel}{extra}" defer></script>\n'
+            scripts += f'<script src="{rel}{extra}?v={VER}" defer></script>\n'
     body, spy = enrich(body)
     scripts += spy
     html = HEAD.format(
-        title=meta["title"], description=meta.get("description", ""), url=url, rel=rel, site=SITE,
+        title=meta["title"], description=meta.get("description", ""), url=url, rel=rel, site=SITE, ver=VER,
         cur_work=' aria-current="page"' if section == "work" else "",
         cur_log=' aria-current="page"' if section == "log" else "",
         cur_about=' aria-current="page"' if section == "about" else "",
@@ -146,6 +146,17 @@ def build_one(path):
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "index.html").write_text(html, encoding="utf-8", newline="\n")
     return out_dir / "index.html"
+
+def asset_version():
+    """Short hash of the shared assets, appended as ?v= so browsers and GitHub Pages never serve a stale stylesheet."""
+    h = hashlib.sha1()
+    for name in ("style.css", "charts.js", "live.js"):
+        f = ROOT / name
+        if f.exists():
+            h.update(f.read_bytes())
+    return h.hexdigest()[:8]
+
+VER = asset_version()
 
 def main():
     pages = sorted(SRC.rglob("*.html"))
