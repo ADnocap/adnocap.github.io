@@ -150,14 +150,15 @@
       svg.appendChild(el("path", { class: "line " + cls, d: dstr }));
       if (d.dots) s.values.forEach((v, i) => { if (v != null) svg.appendChild(el("circle", { class: "dot " + cls, cx: x(i), cy: y(v), r: 4 })); });
     });
-    /* marker labels last, with a paper halo; flip to the left of the line when crowding the previous one */
-    let lastRight = -1e9;
+    /* marker labels last, with a paper halo; drop to a second row when crowding the previous one, flip left at the edge */
+    const rowRight = [-1e9, -1e9];
     (d.markers || []).forEach(mk => {
       const px = x(mk.x), wpx = mk.label.length * 6.6;
-      const left = px + 5 + wpx > W - m.r || (px - lastRight) < 8;
-      const tx = left ? px - 5 : px + 5, anchor = left ? "end" : "start";
-      svg.appendChild(el("text", { class: "label halo", x: tx, y: m.t + 12, "text-anchor": anchor }, mk.label));
-      lastRight = left ? lastRight : px + 5 + wpx;
+      const atEdge = px + 5 + wpx > W - m.r;
+      const row = (!atEdge && px - rowRight[0] < 8) ? 1 : 0;
+      const tx = atEdge ? px - 5 : px + 5, anchor = atEdge ? "end" : "start";
+      svg.appendChild(el("text", { class: "label halo", x: tx, y: m.t + 12 + row * 14, "text-anchor": anchor }, mk.label));
+      if (!atEdge) rowRight[row] = px + 5 + wpx;
     });
     if (d.ylabel) svg.appendChild(el("text", { class: "label halo", x: m.l, y: 12 }, d.ylabel));
     const ch = el("line", { class: "crosshair", x1: 0, x2: 0, y1: m.t, y2: m.t + ih }); svg.appendChild(ch);
