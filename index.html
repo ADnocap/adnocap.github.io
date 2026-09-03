@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./style.css?v=5d9915b6">
+<link rel="stylesheet" href="./style.css?v=654951d2">
 <script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
 </head>
 <body>
@@ -45,74 +45,81 @@
 
 <h2 id="work">Work</h2>
 <p>Dated, with the result that matters and the honest status. Deep write-ups exist for the underlined entries; the rest are summarised in place.</p>
+<div class="filters" role="group" aria-label="Show only one kind of entry">
+  <button type="button" class="on" data-filter="all" aria-pressed="true">All <small>12</small></button>
+  <button type="button" data-filter="work" aria-pressed="false">Work <small>2</small></button>
+  <button type="button" data-filter="research" aria-pressed="false">Research <small>3</small></button>
+  <button type="button" data-filter="project" aria-pressed="false">Projects <small>4</small></button>
+  <button type="button" data-filter="competition" aria-pressed="false">Competitions <small>3</small></button>
+</div>
 
 <ol class="ledger">
   <li class="year">2026</li>
-  <li>
-    <span class="when">Mar →</span>
+  <li data-type="project">
+    <span class="when">Mar →<span class="type">project</span></span>
     <span class="what">
       <span class="head"><a href="work/fpl/">Fantasy Premier League, predict and optimise</a> <span class="chip live">live season</span></span>
       <span class="result"><b>2,918</b> net points on a chip-free replay of 2024/25 and <b>2,261</b> on the harder 2025/26 replay, from a LightGBM point predictor feeding a mixed-integer squad optimiser. Now planning a real entry each week, tracked on the page.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Jul</span>
+  <li data-type="competition">
+    <span class="when">Jul<span class="type">hackathon</span></span>
     <span class="what">
-      <span class="head"><span class="title">Counterproof, a venture-diligence engine</span> <span class="chip">hackathon</span></span>
+      <span class="head"><span class="title">Counterproof, a venture-diligence engine</span> <span class="chip">demo shipped</span></span>
       <span class="result">Scores founder claims by the evidence that should exist if they were true, pricing absence with a likelihood ratio over an append-only ledger. Team of three, 21-hour sprint; <a href="https://adnocap.github.io/counterproof/">static demo</a> over fixture data.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Jun</span>
+  <li data-type="project">
+    <span class="when">Jun<span class="type">project</span></span>
     <span class="what">
       <span class="head"><a href="work/polymarket/#v2">A fail-closed order gateway, rewritten from scratch</a> <span class="chip">piloted, halted</span></span>
       <span class="result"><b>22,770</b> lines of Python in 53 hours with Claude Code: one signing chokepoint, eleven ordered pre-trade risk checks, four independent gates and a kill switch. Then three pilot days at 10-share size.</span>
     </span>
   </li>
-  <li>
-    <span class="when">May →</span>
+  <li data-type="work">
+    <span class="when">May →<span class="type">work</span></span>
     <span class="what">
       <span class="head"><span class="title">Applied AI research intern, Siemens AG, Munich</span> <span class="chip live">current</span></span>
       <span class="result">About <b>95%</b> panoptic quality on the MFInstSeg benchmark, on par with the state of the art, detecting machinable features on 3D part designs from point clouds to automate a CAD-to-CAM step.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Apr</span>
+  <li data-type="research">
+    <span class="when">Apr<span class="type">research</span></span>
     <span class="what">
       <span class="head"><a href="work/phantom/">Phantom, distributional forecasts for 362 cryptocurrencies</a> <span class="chip">audited, paper in prep</span></span>
       <span class="result">Out-of-sample rank IC <b>0.124</b> at 10 days, positive in 15 of 15 months, from a 31.7M-parameter Transformer predicting Student-t distributions. Audited in July: the Sharpe I had reported was inflated by about √10 and corrected in public.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Apr</span>
+  <li data-type="competition">
+    <span class="when">Apr<span class="type">competition</span></span>
     <span class="what">
       <span class="head"><a href="work/imc-prosperity/">IMC Prosperity 4</a> <span class="chip">done</span></span>
       <span class="result">Rank <b>458</b> of 18,803 teams (Finalist Crew), team of three. A Rust market simulator that reproduced the round-1 bots' quoting rules at 99 to 100% exact match; five documented dead ends.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Feb–Jun</span>
+  <li data-type="project">
+    <span class="when">Feb–Jun<span class="type">project</span></span>
     <span class="what">
       <span class="head"><a href="work/polymarket/">A live trading system for 15-minute crypto binaries on Polymarket</a> <span class="chip">wound down</span></span>
       <span class="result"><b>3,037</b> live trades in 18 days at a 78.0% win rate, co-built and run on personal capital. Two postmortems: a look-ahead leak that took a backtest from Sharpe 9.5 to 0.85, and a $494 live loss that killed a variant.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Feb</span>
+  <li data-type="competition">
+    <span class="when">Feb<span class="type">hackathon</span></span>
     <span class="what">
-      <span class="head"><span class="title">DeFi Sentinel, HackEurope</span> <span class="chip">hackathon</span></span>
+      <span class="head"><span class="title">DeFi Sentinel, HackEurope</span> <span class="chip">2nd place</span></span>
       <span class="result"><b>2nd place</b>, Solana challenge. A rug-pull detector for new Solana tokens; a team project in which I built the live-data collectors and the backend.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Feb</span>
+  <li data-type="project">
+    <span class="when">Feb<span class="type">dataset</span></span>
     <span class="what">
       <span class="head"><a href="https://github.com/ADnocap/taut-arb-backtest">taut-arb-backtest, an open dataset</a> <span class="chip">public</span></span>
       <span class="result"><b>30,180</b> settled Polymarket crypto markets with 1.1M price observations, plus 5,171 sports events aligned to de-vigged Pinnacle odds. Data only.</span>
     </span>
   </li>
-  <li>
-    <span class="when">Oct 25–Apr 26</span>
+  <li data-type="research">
+    <span class="when">Oct 25–Apr 26<span class="type">research</span></span>
     <span class="what">
       <span class="head"><a href="work/reliability-llm/">A domain-specific LLM for reliability engineering</a> <span class="chip">paper in preparation</span></span>
       <span class="result">Qwen3-8B fine-tuned from <b>63.6% to 82.2%</b> (10-fold cross-validation, p = 0.002) on 866 verified question-answer pairs bootstrapped from 56 textbook problems. Joint project.</span>
@@ -120,8 +127,8 @@
   </li>
 
   <li class="year">2025</li>
-  <li>
-    <span class="when">2024–25</span>
+  <li data-type="work">
+    <span class="when">2024–25<span class="type">work</span></span>
     <span class="what">
       <span class="head"><a href="about/#lecap">Quantitative finance intern, LeCap Asset Management, London</a> <span class="chip">two summers</span></span>
       <span class="result">Validated <b>100+</b> alpha signals for a systematic equity strategy; built the weekly reporting that scores 150+ signals on 8 metrics; best forecasting model at 54% daily directional accuracy against a coin-flip baseline near 50%.</span>
@@ -129,10 +136,10 @@
   </li>
 
   <li class="year">2024</li>
-  <li>
-    <span class="when">Sep–Dec</span>
+  <li data-type="research">
+    <span class="when">Sep–Dec<span class="type">coursework</span></span>
     <span class="what">
-      <span class="head"><span class="title">TensorTalk, zero-shot voice cloning</span> <span class="chip">coursework</span></span>
+      <span class="head"><span class="title">TensorTalk, zero-shot voice cloning</span> <span class="chip">done</span></span>
       <span class="result">Training-free voice conversion from WavLM features with nearest-neighbour matching and a HiFi-GAN vocoder. Boston College team of four; first author on the write-up.</span>
     </span>
   </li>
@@ -163,6 +170,7 @@
   </li>
 </ul>
 
+<script>(function(){var g=document.querySelector(".filters");if(!g)return;var rows=[].slice.call(document.querySelectorAll(".ledger li[data-type]")),years=[].slice.call(document.querySelectorAll(".ledger li.year")),btns=[].slice.call(g.querySelectorAll("button"));function apply(f){btns.forEach(function(x){var on=x.getAttribute("data-filter")===f;x.classList.toggle("on",on);x.setAttribute("aria-pressed",on?"true":"false");});rows.forEach(function(r){r.hidden=!(f==="all"||r.getAttribute("data-type")===f);});years.forEach(function(y){var n=y.nextElementSibling,any=false;while(n&&!n.classList.contains("year")){if(!n.hidden)any=true;n=n.nextElementSibling;}y.hidden=!any;});}g.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var f=b.getAttribute("data-filter");apply(f);if(history.replaceState)history.replaceState(null,"",f==="all"?location.pathname+location.search:"#kind="+f);});var m=/^#kind=(work|research|project|competition)$/.exec(location.hash);if(m)apply(m[1]);})();</script>
 </main>
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>

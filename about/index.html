@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css?v=5d9915b6">
+<link rel="stylesheet" href="../style.css?v=654951d2">
 <script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
 </head>
 <body>
@@ -38,28 +38,46 @@
 <p><b>Availability.</b> Full-time roles from November 2026, in London, the United States, the EU (Paris, Amsterdam, Munich) or Switzerland (Zurich). Also open to research residencies and fellowships. US and EU citizen with UK settled status: full working rights in all three, no sponsorship needed. French and English, both native.</p>
 
 <h2 id="education">Education</h2>
-<div class="cvline"><span><b>CentraleSupélec</b>, MSc in Artificial Intelligence (M2)</span><span class="where">Paris · Sept 2025 – Nov 2026</span></div>
-<p>Core: machine learning, optimisation for ML, big data for AI (Apache Spark), deep learning, foundations of AI, decision modelling. Electives: AI for finance, stochastic optimisation, advanced deep learning, reinforcement learning, ensemble learning, machine learning in network science. Joint two-person research project on a <a href="../work/reliability-llm/">domain-specific LLM for reliability engineering</a>, supervised by Dr. Zhiguo Zeng (LGI laboratory); paper in preparation. First place in the school's GreenAI hackathon.</p>
-
-<div class="cvline"><span><b>Boston College</b>, BS in Mathematics and Computer Science</span><span class="where">Boston · Aug 2021 – May 2025</span></div>
-<p>Mathematics: learning theory, probability, statistics, mathematical logic. Computer science: computer systems, algorithms, machine learning, deep learning, natural language processing, object-oriented design. Course research project TensorTalk (zero-shot voice cloning), team of four, first author.</p>
+<div class="cv">
+  <div class="logo"><img src="../assets/img/logos/centralesupelec.svg" alt="CentraleSupélec" width="92" height="47"></div>
+  <div>
+    <div class="cvline"><span><b>CentraleSupélec</b>, MSc in Artificial Intelligence (M2)</span><span class="where">Paris · Sept 2025 – Nov 2026</span></div>
+    <p>Core: machine learning, optimisation for ML, big data for AI (Apache Spark), deep learning, foundations of AI, decision modelling. Electives: AI for finance, stochastic optimisation, advanced deep learning, reinforcement learning, ensemble learning, machine learning in network science. Joint two-person research project on a <a href="../work/reliability-llm/">domain-specific LLM for reliability engineering</a>, supervised by Dr. Zhiguo Zeng (LGI laboratory); paper in preparation. First place in the school's GreenAI hackathon.</p>
+  </div>
+</div>
+<div class="cv">
+  <div class="logo"><img src="../assets/img/logos/bostoncollege.png" alt="Boston College" width="592" height="312"></div>
+  <div>
+    <div class="cvline"><span><b>Boston College</b>, BS in Mathematics and Computer Science</span><span class="where">Boston · Aug 2021 – May 2025</span></div>
+    <p>Mathematics: learning theory, probability, statistics, mathematical logic. Computer science: computer systems, algorithms, machine learning, deep learning, natural language processing, object-oriented design. Course research project TensorTalk (zero-shot voice cloning), team of four, first author.</p>
+  </div>
+</div>
 
 <h2 id="experience">Experience</h2>
-<div class="cvline" id="siemens"><span><b>Applied AI Research Intern</b>, Siemens AG</span><span class="where">Munich · May 2026 – Nov 2026</span></div>
-<ul>
-  <li>Automating a manual step in manufacturing (CAD to CAM): a model that detects machinable features such as holes, pockets and slots on 3D part designs, replacing work currently done by hand. Self-supervised learning on sampled point clouds, building on Meta's Sonata and Xiaomi's Utonia.</li>
-  <li>Graph neural networks for classification.</li>
-  <li>The current approach reaches about 95% panoptic quality on the MFInstSeg benchmark, on par with the state of the art.</li>
-</ul>
-
-<div class="cvline" id="lecap"><span><b>Quantitative Finance Intern</b>, LeCap Asset Management (hedge fund)</span><span class="where">London · Summers 2024 and 2025</span></div>
-<ul>
-  <li>Researched and validated 100+ alpha signals for a systematic equity portfolio strategy, supporting portfolio construction.</li>
-  <li>Built production Python tooling for the live trading environment, including an automated weekly reporting system evaluating 150+ signals across 8 performance metrics, replacing manual analysis.</li>
-  <li>Built a supervised forecasting pipeline from classical models through transformer architectures, trained on 90 proprietary indicators and Axioma factor-residualised returns across the top 1,000 North American equities; the best model reached 54% daily directional accuracy against a coin-flip baseline near 50%.</li>
-  <li>Developed PPO reinforcement-learning agents rewarded on rolling 5-, 10- and 20-day realised Sharpe and P&L, producing dynamic indicator weightings for a composite prediction signal.</li>
-  <li>Returned for a second summer.</li>
-</ul>
+<div class="cv" id="siemens">
+  <div class="logo"><img src="../assets/img/logos/siemens.svg" alt="Siemens" width="744" height="177"></div>
+  <div>
+    <div class="cvline"><span><b>Applied AI Research Intern</b>, Siemens AG</span><span class="where">Munich · May 2026 – Nov 2026</span></div>
+    <ul>
+      <li>Automating a manual step in manufacturing (CAD to CAM): a model that detects machinable features such as holes, pockets and slots on 3D part designs, replacing work currently done by hand. Self-supervised learning on sampled point clouds, building on Meta's Sonata and Xiaomi's Utonia.</li>
+      <li>Graph neural networks for classification.</li>
+      <li>The current approach reaches about 95% panoptic quality on the MFInstSeg benchmark, on par with the state of the art.</li>
+    </ul>
+  </div>
+</div>
+<div class="cv" id="lecap">
+  <div class="logo"><span class="wordmark" title="LeCap Asset Management">LeCap</span></div>
+  <div>
+    <div class="cvline"><span><b>Quantitative Finance Intern</b>, LeCap Asset Management (hedge fund)</span><span class="where">London · Summers 2024 and 2025</span></div>
+    <ul>
+      <li>Researched and validated 100+ alpha signals for a systematic equity portfolio strategy, supporting portfolio construction.</li>
+      <li>Built production Python tooling for the live trading environment, including an automated weekly reporting system evaluating 150+ signals across 8 performance metrics, replacing manual analysis.</li>
+      <li>Built a supervised forecasting pipeline from classical models through transformer architectures, trained on 90 proprietary indicators and Axioma factor-residualised returns across the top 1,000 North American equities; the best model reached 54% daily directional accuracy against a coin-flip baseline near 50%.</li>
+      <li>Developed PPO reinforcement-learning agents rewarded on rolling 5-, 10- and 20-day realised Sharpe and P&amp;L, producing dynamic indicator weightings for a composite prediction signal.</li>
+      <li>Returned for a second summer.</li>
+    </ul>
+  </div>
+</div>
 
 <h2 id="selected-results">Selected results</h2>
 <ul>
