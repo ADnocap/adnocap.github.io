@@ -313,6 +313,7 @@ details.data table { margin-top: 6px; }
 .cv .cvline { margin-top: 0; }
 .cv .logo { min-height: 44px; display: flex; align-items: center; justify-content: center; padding-top: 2px; }
 .cv .logo img { width: auto; height: auto; max-width: 96px; max-height: 44px; filter: grayscale(1); opacity: .88; }
+.cv .logo img.seal { max-height: 64px; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cv .logo img { background: #f4f4f1; padding: 5px 7px; border-radius: 3px; max-height: 40px; } }
 :root[data-theme="dark"] .cv .logo img { background: #f4f4f1; padding: 5px 7px; border-radius: 3px; max-height: 40px; }
 .cv .wordmark { font-family: var(--sans); font-weight: 600; font-size: 15px; letter-spacing: .02em; color: var(--ink-2); border: 1px solid var(--rule); border-radius: 3px; padding: 5px 10px; }
