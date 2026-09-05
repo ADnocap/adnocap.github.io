@@ -7,7 +7,7 @@ A fragment starts with a small front-matter block:
     <!--
     title: Page title
     description: one sentence for <meta name=description>
-    section: work | log | about | home
+    section: work | notes | home
     path: work/phantom/          (output directory, index.html is written inside)
     scripts: charts              (optional; comma-separated: charts)
     extra_scripts: live.js       (optional)
@@ -18,7 +18,7 @@ becomes an "On this page" list of the h2 headings when there are at least four o
 
 No dependencies beyond the standard library. Output files are plain HTML and are committed.
 """
-import pathlib, re, sys, datetime, hashlib
+import pathlib, re, sys, hashlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -49,17 +49,14 @@ HEAD = """<!doctype html>
   <a class="brand" href="{rel}">{site}</a>
   <nav aria-label="Site">
     <a href="{rel}#work"{cur_work}>Work</a>
-    <a href="{rel}log/"{cur_log}>Log</a>
-    <a href="{rel}about/"{cur_about}>About</a>
-  </nav>
+{draft_nav}  </nav>
 </header>
 """
 
 FOOT = """
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
-  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="{rel}assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></span>
-  <span>Hand-written HTML, CSS and SVG. No framework, no analytics. Updated {updated}.</span>
+  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="{rel}assets/Alexandre_Dalban_CV.pdf">CV</a></span>
 </footer>
 {scripts}
 </body>
@@ -79,6 +76,24 @@ def parse(text):
 
 SPY = """<script>(function(){var t=document.querySelector('.toc');if(!t)return;var links=[].slice.call(t.querySelectorAll('a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);function on(){var y=window.scrollY+140,cur=hs[0];hs.forEach(function(h){if(h.offsetTop<=y)cur=h;});links.forEach(function(a){a.parentNode.classList.toggle('on',!!cur&&a.getAttribute('href')==='#'+cur.id);});}window.addEventListener('scroll',on,{passive:true});window.addEventListener('resize',on);on();})();</script>
 """
+
+OUT_ROOT = ROOT     # --drafts redirects every page into _preview/ so the real tree is never touched
+NAV_EXTRA = []      # (label, path, section) for pages that declare `nav:`; see main()
+LEDGER_EXTRA = ""   # ledger rows contributed by draft pages, home page only
+
+
+def filter_counts(body):
+    """Keep the ledger's filter counts in step with the rows actually present."""
+    types = re.findall(r'<li data-type="([^"]+)"', body)
+    if not types:
+        return body
+    counts = {"all": len(types)}
+    for t in types:
+        counts[t] = counts.get(t, 0) + 1
+    def fix(m):
+        return f'{m.group(1)}<small>{counts.get(m.group(2), 0)}</small>'
+    return re.sub(r'(<button[^>]*data-filter="([^"]+)"[^>]*>[^<]*)<small>\d+</small>', fix, body)
+
 
 def slug(text):
     t = re.sub(r"<[^>]+>", "", text)
@@ -123,7 +138,7 @@ def enrich(body):
 
 def build_one(path):
     meta, body = parse(path.read_text(encoding="utf-8"))
-    out_dir = ROOT / meta.get("path", "")
+    out_dir = OUT_ROOT / meta.get("path", "")
     depth = len([p for p in meta.get("path", "").split("/") if p])
     rel = "../" * depth or "./"
     section = meta.get("section", "")
@@ -135,14 +150,19 @@ def build_one(path):
         extra = extra.strip()
         if extra:
             scripts += f'<script src="{rel}{extra}?v={VER}" defer></script>\n'
+    if section == "home":
+        if LEDGER_EXTRA:
+            body = body.replace('<li class="year">2026</li>', '<li class="year">2026</li>\n' + LEDGER_EXTRA, 1)
+        body = filter_counts(body)
     body, spy = enrich(body)
     scripts += spy
+    draft_nav = "".join(
+        '    <a href="{}{}"{}>{}</a>\n'.format(rel, npath, ' aria-current="page"' if section == nsec else "", label)
+        for label, npath, nsec in NAV_EXTRA)
     html = HEAD.format(
         title=meta["title"], description=meta.get("description", ""), url=url, rel=rel, site=SITE, ver=VER,
-        cur_work=' aria-current="page"' if section == "work" else "",
-        cur_log=' aria-current="page"' if section == "log" else "",
-        cur_about=' aria-current="page"' if section == "about" else "",
-    ) + body.strip() + FOOT.format(rel=rel, scripts=scripts, updated=datetime.date.today().strftime("%B %Y"))
+        cur_work=' aria-current="page"' if section == "work" else "", draft_nav=draft_nav,
+    ) + body.strip() + FOOT.format(rel=rel, scripts=scripts)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "index.html").write_text(html, encoding="utf-8", newline="\n")
     return out_dir / "index.html"
@@ -159,10 +179,25 @@ def asset_version():
 VER = asset_version()
 
 def main():
+    global LEDGER_EXTRA, OUT_ROOT
     pages = sorted(SRC.rglob("*.html"))
+    drafts = "--drafts" in sys.argv[1:]
+    if drafts:
+        OUT_ROOT = ROOT / "_preview"
+        pages += sorted(p for p in (ROOT / "drafts").glob("*.html") if not p.name.endswith(".ledger.html"))
+        LEDGER_EXTRA = "".join(f.read_text(encoding="utf-8").strip() + "\n"
+                               for f in sorted((ROOT / "drafts").glob("*.ledger.html")))
+    for p in pages:                       # nav entries are global, so collect them first
+        meta, _ = parse(p.read_text(encoding="utf-8"))
+        if meta.get("nav"):
+            NAV_EXTRA.append((meta["nav"], meta.get("path", ""), meta.get("section", "")))
     for p in pages:
         out = build_one(p)
-        print("wrote", out.relative_to(ROOT))
+        note = "  (draft)" if p.parent.name == "drafts" else ""
+        print("wrote", out.relative_to(ROOT), note)
+    if drafts:
+        print("\nDraft pages built for local preview only. Their output paths are in .gitignore;\n"
+              "see drafts/README.md for how to publish one properly.")
     return 0
 
 if __name__ == "__main__":

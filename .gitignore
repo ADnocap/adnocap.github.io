@@ -3,3 +3,11 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# unpublished pages: this repo is public, so drafts stay local until they ship
+drafts/
+
+# `python tools/build.py --drafts` writes the whole site, drafts included, into _preview/.
+# tools/serve.py overlays it on the real tree, so nothing draft-related is ever committed.
+_preview/
+/assets/quant-ai-interview-notes.pdf

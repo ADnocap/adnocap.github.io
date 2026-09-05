@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./style.css?v=e48a3491">
+<link rel="stylesheet" href="./style.css?v=78fa95ba">
 <script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
 </head>
 <body>
@@ -22,8 +22,6 @@
   <a class="brand" href="./">Alexandre Dalban</a>
   <nav aria-label="Site">
     <a href="./#work">Work</a>
-    <a href="./log/">Log</a>
-    <a href="./about/">About</a>
   </nav>
 </header>
 <main class="article">
@@ -32,24 +30,22 @@
   <img src="assets/img/portrait.jpg" alt="Portrait of Alexandre Dalban" width="720" height="720">
   <div>
     <h1>Alexandre Dalban</h1>
-    <p class="lede">I build forecasting models and trading systems. I've run them for real, and I write down what went wrong.</p>
     <dl class="facts">
       <dt>Now</dt><dd>Applied AI research intern at Siemens in Munich. I'm finishing an MSc in Artificial Intelligence at CentraleSupélec, Paris, and graduate in November 2026</dd>
-      <dt>Before</dt><dd>I did a BS in Mathematics and Computer Science at Boston College, and spent two summers doing alpha research at LeCap Asset Management, a systematic equity hedge fund in London</dd>
+      <dt>Before</dt><dd>Previously, I did a BS in Mathematics and Computer Science at Boston College, and spent two summers doing alpha research at LeCap Asset Management, a systematic equity hedge fund in London</dd>
       <dt>Next</dt><dd>I'm looking for full-time roles from November 2026 in London, the US, the EU or Switzerland. I'm a US and EU citizen with UK settled status, so I don't need visa sponsorship in the UK, the US or the EU</dd>
-      <dt>Contact</dt><dd><a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a> &middot; <a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></dd>
-      <dt>Start with</dt><dd><a href="work/polymarket/">the Polymarket trading system</a> and its two postmortems, <a href="work/phantom/">Phantom</a>, a forecaster I audited and then corrected in the README and the paper draft, and <a href="log/">the experiment log</a>, where I keep the negative results</dd>
+      <dt>Contact</dt><dd><a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a> &middot; <a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="assets/Alexandre_Dalban_CV.pdf">CV</a></dd>
+      <dt>Start with</dt><dd><a href="work/polymarket/">the Polymarket trading system</a>, seven months of strategies with two postmortems and the wallet curve, and <a href="work/phantom/">Phantom</a>, a forecaster I audited and then corrected in the README and the paper draft</dd>
     </dl>
   </div>
 </div>
 
 <h2 id="work">Work</h2>
-<p>Each entry has a date, what came out of it and where it stands now. The underlined ones link to a longer write-up, and the rest are summarised here.</p>
 <div class="filters" role="group" aria-label="Show only one kind of entry">
-  <button type="button" class="on" data-filter="all" aria-pressed="true">All <small>12</small></button>
+  <button type="button" class="on" data-filter="all" aria-pressed="true">All <small>11</small></button>
   <button type="button" data-filter="work" aria-pressed="false">Work <small>2</small></button>
   <button type="button" data-filter="research" aria-pressed="false">Research <small>3</small></button>
-  <button type="button" data-filter="project" aria-pressed="false">Projects <small>4</small></button>
+  <button type="button" data-filter="project" aria-pressed="false">Projects <small>3</small></button>
   <button type="button" data-filter="competition" aria-pressed="false">Competitions <small>3</small></button>
 </div>
 
@@ -67,13 +63,6 @@
     <span class="what">
       <span class="head"><span class="title">Counterproof, a venture-diligence engine</span> <span class="chip">demo shipped</span></span>
       <span class="result">It scores founder claims by the evidence that should exist if they were true, and prices absence with a likelihood ratio over an append-only ledger. Team of three, 21-hour sprint. There's a <a href="https://adnocap.github.io/counterproof/">static demo</a> on fixture data.</span>
-    </span>
-  </li>
-  <li data-type="project">
-    <span class="when">Jun<span class="type">project</span></span>
-    <span class="what">
-      <span class="head"><a href="work/polymarket/#v2">A fail-closed order gateway, rewritten from scratch</a> <span class="chip">piloted, halted</span></span>
-      <span class="result">It's <b>22,770</b> lines of Python, written in 53 hours with Claude Code: one signing chokepoint, eleven ordered pre-trade risk checks, four independent gates and a kill switch. It then ran for three pilot days at 10-share size.</span>
     </span>
   </li>
   <li data-type="work">
@@ -98,17 +87,17 @@
     </span>
   </li>
   <li data-type="project">
-    <span class="when">Feb–Jun<span class="type">project</span></span>
+    <span class="when">Dec 25–Jun 26<span class="type">project</span></span>
     <span class="what">
-      <span class="head"><a href="work/polymarket/">A live trading system for 15-minute crypto binaries on Polymarket</a> <span class="chip">wound down</span></span>
-      <span class="result">I co-built it and it ran on personal capital, making <b>3,037</b> live trades in 18 days at a 78.0% win rate. There are two postmortems: a look-ahead leak that took a backtest from Sharpe 9.5 to 0.85, and a $494 live loss that killed a variant.</span>
+      <span class="head"><a href="work/polymarket/">A live trading system on Polymarket</a> <span class="chip">wound down</span></span>
+      <span class="result">I co-built it and ran it on personal capital for seven months, through two generations and a rewrite. The first priced daily crypto markets off the Deribit options surface. The second pressed the favourite on 15-minute markets, which made <b>3,037</b> trades in 18 days at a 78.0% win rate. It traded <b>$260k</b> of volume across 6,213 markets to finish $155 up, and there are two postmortems.</span>
     </span>
   </li>
   <li data-type="competition">
     <span class="when">Feb<span class="type">hackathon</span></span>
     <span class="what">
       <span class="head"><span class="title">DeFi Sentinel, HackEurope</span> <span class="chip">2nd place</span></span>
-      <span class="result">We took <b>2nd place</b> in the Solana challenge with a rug-pull detector for new Solana tokens. It was a team project and I built the live-data collectors and the backend.</span>
+      <span class="result">We took <b>2nd place</b> in the Solana challenge with a rug-pull detector for new Solana tokens. It was a team project and I built the live-data collectors and the backend. The model that scored best (AUC 0.9995) drew 89% of its importance from deployer history, which doesn't exist when a new token is scanned, so we shipped the restricted one instead.</span>
     </span>
   </li>
   <li data-type="project">
@@ -130,7 +119,7 @@
   <li data-type="work">
     <span class="when">2024–25<span class="type">work</span></span>
     <span class="what">
-      <span class="head"><a href="about/#lecap">Quantitative finance intern, LeCap Asset Management, London</a> <span class="chip">two summers</span></span>
+      <span class="head"><span class="title">Quantitative finance intern, LeCap Asset Management, London</span> <span class="chip">two summers</span></span>
       <span class="result">I validated <b>100+</b> alpha signals for a systematic equity strategy and built the weekly reporting that scores 150+ signals on 8 metrics. The best forecasting model reached 54% daily directional accuracy, against a coin-flip baseline near 50%.</span>
     </span>
   </li>
@@ -149,8 +138,7 @@
 </main>
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
-  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="./assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></span>
-  <span>Hand-written HTML, CSS and SVG. No framework, no analytics. Updated September 2026.</span>
+  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="./assets/Alexandre_Dalban_CV.pdf">CV</a></span>
 </footer>
 
 </body>

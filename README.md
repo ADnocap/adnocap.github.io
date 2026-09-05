@@ -10,15 +10,17 @@ Personal site of Alexandre Dalban. Hand-written HTML, CSS and SVG; no framework,
 - `assets/fig/<project>/` figures, downscaled to 1,800 px or less. `assets/img/` the portrait. `assets/Alexandre_Dalban_CV.pdf` the one-page CV.
 - `data/fpl.json` the Fantasy Premier League tracker data; refreshed weekly by `.github/workflows/fpl.yml`, which runs `tools/fetch_fpl.py` against the public FPL API and commits the result. `data/polymarket_pnl.json` is a dated snapshot of the public Polymarket P&L endpoint for the wallet linked from the trading write-up.
 - `.nojekyll` tells GitHub Pages to serve the files as they are.
+- `drafts/` holds pages that are written but not published. Gitignored, and a normal build never looks in it. See `drafts/README.md`.
 
 ## Editing
 
 1. Change a fragment in `src/`.
 2. `python tools/build.py`
-3. Check locally: `python -m http.server 8765` and open `http://127.0.0.1:8765/`. Append `?theme=light` or `?theme=dark` to a page URL to preview either colour scheme regardless of the OS setting.
+3. Check locally: `python tools/serve.py` and open `http://127.0.0.1:8765/`. It disables caching, so a reload always shows the latest build. Append `?theme=light` or `?theme=dark` to a page URL to preview either colour scheme regardless of the OS setting.
+   To include unpublished pages, `python tools/build.py --drafts` first: that writes the whole site into the gitignored `_preview/`, which the server overlays on the real tree.
 4. Commit the fragment and the built file together.
 
-Adding a project page: copy any `src/work/*.html` fragment, keep the front-matter keys, and add a row to the ledger in `src/index.html`.
+Adding a project page: copy any `src/work/*.html` fragment, keep the front-matter keys, and add a row to the ledger in `src/index.html`. The ledger's filter counts are computed at build time, so they never need editing. Add `nav: Label` to a fragment's front matter to give it a tab in the header.
 
 ## Charts
 

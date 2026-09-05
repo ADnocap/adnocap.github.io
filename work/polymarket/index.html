@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A live trading system for Polymarket's 15-minute crypto markets · Alexandre Dalban</title>
-<meta name="description" content="A multi-strategy trading system my collaborator and I built and ran live on Polymarket in 2026, with the favourite-press strategy's verified live results, two postmortems, and the fail-closed rewrite that came after.">
-<meta property="og:title" content="A live trading system for Polymarket's 15-minute crypto markets · Alexandre Dalban">
-<meta property="og:description" content="A multi-strategy trading system my collaborator and I built and ran live on Polymarket in 2026, with the favourite-press strategy's verified live results, two postmortems, and the fail-closed rewrite that came after.">
+<title>A live trading system on Polymarket · Alexandre Dalban</title>
+<meta name="description" content="Seven months of prediction-market trading my collaborator and I built and ran on Polymarket in 2026: a Deribit-priced fair value for daily crypto markets, the favourite-press strategy on 15-minute markets, two postmortems and the fail-closed rewrite that came after.">
+<meta property="og:title" content="A live trading system on Polymarket · Alexandre Dalban">
+<meta property="og:description" content="Seven months of prediction-market trading my collaborator and I built and ran on Polymarket in 2026: a Deribit-priced fair value for daily crypto markets, the favourite-press strategy on 15-minute markets, two postmortems and the fail-closed rewrite that came after.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://adnocap.github.io/work/polymarket/">
 <link rel="canonical" href="https://adnocap.github.io/work/polymarket/">
@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css?v=e48a3491">
+<link rel="stylesheet" href="../../style.css?v=78fa95ba">
 <script>(function(){var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);})();</script>
 </head>
 <body>
@@ -22,31 +22,31 @@
   <a class="brand" href="../../">Alexandre Dalban</a>
   <nav aria-label="Site">
     <a href="../../#work" aria-current="page">Work</a>
-    <a href="../../log/">Log</a>
-    <a href="../../about/">About</a>
   </nav>
 </header>
 <main class="article">
-<p class="kicker">Work · trading &middot; 16 min read</p>
-<h1>A live trading system for Polymarket's 15-minute crypto markets</h1>
-<p class="lede">I built this with a collaborator. We ran it on personal capital from February to June 2026, then wound it down to make room for research. If you only read one section, read the two postmortems.</p>
+<p class="kicker">Work · trading &middot; 24 min read</p>
+<h1>A live trading system on Polymarket</h1>
+<p class="lede">I built this with a collaborator. We ran it on personal capital from December 2025 to June 2026, then wound it down to make room for research. If you only read one section, read the two postmortems.</p>
 
 <div class="stats">
-  <div class="stat"><span class="v">3,037</span><span class="l">live trades the favourite-press strategy settled in 18 days</span></div>
-  <div class="stat"><span class="v">78.0<small>%</small></span><span class="l">realised win rate, reconciled against on-chain fills</span></div>
-  <div class="stat"><span class="v">+$383</span><span class="l">verified P&amp;L over those 18 days (the dashboard said +$549 before the correction)</span></div>
+  <div class="stat"><span class="v">$260k</span><span class="l">total volume traded, across 6,213 markets</span></div>
+  <div class="stat"><span class="v">+$155</span><span class="l">net P&amp;L on that volume, or about six basis points of it</span></div>
+  <div class="stat"><span class="v">78.0<small>%</small></span><span class="l">win rate on 3,037 trades, the one strategy with a verified profit</span></div>
+  <div class="stat"><span class="v">13</span><span class="l">strategies traded or researched across three generations</span></div>
 </div>
 <dl class="meta">
-  <dt>Dates</dt><dd>Built from December 2025. Live on personal capital from February to June 2026, wound down in June</dd>
+  <dt>Dates</dt><dd>Built from December 2025. Live on personal capital from late December 2025 to June 2026, wound down in June</dd>
   <dt>Status</dt><dd>Wound down. Nothing on this page is still running.</dd>
   <dt>Role</dt><dd>Joint project. I wrote most of the research code and most of the production system. <a href="#credits">Credits</a>.</dd>
-  <dt>Scale</dt><dd>Personal capital, about $1,650 in USDC when the hub went live. This isn't a fund track record.</dd>
+  <dt>Scale</dt><dd>Personal capital. The open book was worth a few thousand dollars at its largest, and about $1,650 in USDC when the hub went live in March. This isn't a fund track record.</dd>
   <dt>Code</dt><dd>The repositories are private. Ask me if you want a walkthrough. The <a href="https://polymarket.com/profile/0x025fd03ff0c913876dfca293fd2bcded014225cf">exchange account</a> is public.</dd>
 </dl>
 <div class="toc-wrap"><nav class="toc" aria-label="On this page"><p class="toc-h">On this page</p>
 <ol>
-<li><a href="#the-market">The market</a></li>
-<li><a href="#the-strategies">The strategies</a></li>
+<li><a href="#wallet">Seven months in one chart</a></li>
+<li><a href="#deribit">Generation one: pricing Polymarket off Deribit</a></li>
+<li><a href="#fifteen">Generation two: the 15-minute markets</a></li>
 <li><a href="#the-system">The system</a></li>
 <li><a href="#what-happened-live">What happened live</a></li>
 <li><a href="#postmortem-1">Postmortem 1: fifteen minutes of look-ahead</a></li>
@@ -57,17 +57,71 @@
 <li><a href="#credits">Credits</a></li>
 </ol></nav></div>
 
-<h2 id="the-market">The market</h2>
-<p>Polymarket lists a binary market every fifteen minutes for each of BTC, ETH, SOL and XRP, on whether the price will be up or down at settlement. Each contract pays $1 or $0. Up and Down have separate order books, so the two asks don't have to sum to one. And because a market settles every 15 minutes, a strategy settles a few hundred times a day. That volume is the appeal. A hypothesis gets answered in days instead of quarters.</p>
-<p>The edge we spent most of our time on is the oldest one in binary markets. Ten minutes before settlement, across 10,113 collected markets, the side priced near 0.80 wins about 90% of the time and the side priced near 0.20 wins about 8%. So favourites are underpriced and longshots are overpriced. Figure 1 is that calibration curve. The rest of the page is about whether that mispricing survives a 0.65 to 0.95 entry, the exchange fees and the queue.</p>
+<h2 id="wallet">Seven months in one chart</h2>
+<p>The wallet is public, so the whole run is one line. It's the exchange's own mark, it covers everything the account did, and it's the honest summary of the project: up to +$612 in six weeks, back to break-even by the middle of February, down to <span class="neg">−$182</span> in April, and +$155 when I took the snapshot in September.</p>
+<p>The number I'd put next to it is the volume. The account traded <b>$259,999</b> across 6,213 markets to end $155 up. That's about six basis points of the money we pushed through the exchange, on a book that was never more than a few thousand dollars at a time and turned over several hundred times. It's the right way to read everything below: the edges here are real and they're thin, and most of the work went into finding out which ones survived contact with a fee schedule.</p>
+
+<figure class="fig wide">
+  <div class="chart" data-chart="pnl" id="pm-pnl-chart"></div>
+  <figcaption>Cumulative profit and loss for the wallet as reported by Polymarket's public profile, December 2025 to September 2026, one point per day. This is wallet-level, so it includes both system generations, every strategy on this page, the June pilots and any other activity on the shared wallet. <span id="pm-pnl-summary"></span> <span class="src">Source: Polymarket's public P&amp;L endpoint for the account, snapshot taken 2 September 2026. The volume and market counts come from the exchange's public leaderboard endpoints for the same wallet, read on 5 September 2026.</span></figcaption>
+</figure>
+
+<p>Four things happened in that line, and the rest of the page is about them.</p>
+<ul>
+  <li><b>Late December to late January.</b> A cross-venue matcher that paired equivalent markets across exchanges with sentence embeddings and a language model, then bought both sides when they disagreed. First trade on 2 January.</li>
+  <li><b>Late January to late March.</b> A fair value for daily BTC and ETH markets built from Deribit's options chain. This is the run-up to +$612 and most of the giveback. It's the section below.</li>
+  <li><b>Late March to June.</b> A hub-and-worker rewrite, three strategies on multi-outcome markets for eleven days, then the 15-minute crypto markets and the favourite-press family. The April trough and recovery.</li>
+  <li><b>June.</b> A second rewrite, production-only, and three pilot days of a daily market maker before I halted it.</li>
+</ul>
+
+<h2 id="deribit">Generation one: pricing Polymarket off Deribit</h2>
+<p>The first real strategy came from an assumption that sounds obvious. Polymarket lists "Will the price of Bitcoin be above $80,000 on 4 February?" and settles it at 17:00 UTC. Deribit runs a liquid options market on the same underlying, priced by people who do this professionally. If Deribit knows the distribution of BTC tomorrow and Polymarket doesn't, the gap between them is the trade.</p>
+<p>Deribit does know it, in a well-defined sense. Breeden-Litzenberger (1978) says the risk-neutral density is the second derivative of the call price with respect to strike, so a full options chain contains the market's entire distribution of where the price lands. Reading P(BTC &gt; $80,000) off that chain is an operation, not a guess. We built the machinery for it:</p>
+<ul>
+  <li><b>Black-76</b> for the vanilla prices, on the forward rather than spot, because crypto futures pay no dividend.</li>
+  <li><b>An SVI smile</b> (Gatheral 2004) fitted per expiry by least squares in total-variance space, with a monotone PCHIP interpolation as the fallback when a slice had fewer than five strikes.</li>
+  <li><b>Total-variance interpolation</b> across expiries rather than interpolating volatility, which keeps calendar spreads arbitrage-free.</li>
+  <li><b>Forward and basis interpolation</b> to bridge the settlement gap. Deribit expires at 08:00 UTC and Polymarket settles at 17:00, so nothing lines up by default.</li>
+  <li><b>Breeden-Litzenberger</b> on the bracketing strikes for the probability itself, with N(d2) on the fitted surface as the fallback.</li>
+  <li><b>A d2-space adjustment</b> to get from risk-neutral to real-world: a funding-drift term from Girsanov, the variance risk premium, a risk reversal, a Cornish-Fisher correction for the skewness gap, and a term-structure signal.</li>
+  <li><b>Quarter-Kelly sizing</b>, a delta budget of $25 of exposure per 1% move per asset, and a scorer that ranked buys and sells on one scale with delta as an explicit term.</li>
+</ul>
+<p>The pricing engine started on 20 January and was placing live orders by the 23rd. It traded until we retired it in late March. Across the first generation's whole run, from late December to 23 March, the account made 3,939 trades on 994 crypto markets and won 62.4% of the ones that settled.</p>
+
+<h3>Why it didn't work</h3>
+<p>The premise was half right. Polymarket is less efficient than Deribit, but not by much, and every step of the pipeline above adds an error that's the same size as the edge we were looking for. Three of them mattered.</p>
+
+<p><b>The chain isn't dense enough where the markets are.</b> Deribit's daily options only carry strikes within roughly ±12% of spot. Polymarket lists "above $80,000" when spot is $70,000, and there's no bracketing pair at the daily expiry, so you either skip the market or reach for a different one. We tried reaching. Pricing a one-day settlement with a weekly option 3.8 days out pulls every probability toward 50%, because the distribution at the later expiry is wider. At 60% crypto volatility that's a 10 to 15 percentage-point error on any strike that isn't at the money. I widened the expiry tolerance to fill those gaps on 23 March and reverted it the same day.</p>
+
+<p><b>The quotes are widest exactly where we needed them.</b> Across 853 Deribit calls sampled on 23 March, the mark price and the bid-ask midpoint differed by 1.97% on average, and the median bid-ask spread was 4.88%. On the options with less than a day to expiry, which are the ones a daily Polymarket market actually needs, the mean spread was 21.1%. Deep out-of-the-money strikes had a median spread of 9.5%. So the input to a two-decimal probability was a price with a two-figure percentage uncertainty on it.</p>
+
+<p><b>The bigger the disagreement, the more likely we were the wrong one.</b> This was the finding that ended the strategy. If you sort the trades by how far the model's probability sat from the market price, accuracy is a hump. Trades where the two agreed to within 5 points had nothing to trade. Trades in the 10 to 20 point band settled at about 74%, close to what the model claimed. Above 20 points, where the model was shouting, the trades settled at 58 to 61% while the model was claiming 94% or more. The strategy sized on model confidence, so it put the most money into the trades it was worst at.</p>
+
+<figure class="fig">
+  <div class="chart" data-chart="bars" data-src="#bl-gap"></div>
+  <figcaption>Realised settlement win rate by the gap between the model's probability and the market price, over 1,414 backtested trades on the same daily markets the strategy traded. The model's own claimed probability in the top two buckets was above 94%. The 10 to 20 point band is the only place the model was roughly as right as it thought it was, and the strategy traded the whole 6.5 to 55 point range. <span class="src">Source: post-fix backtest diagnosis, April 2026.</span></figcaption>
+</figure>
+<script type="application/json" id="bl-gap">{"categories":["0–5 pts","5–10","10–15","15–20","20–30","30–50"],"values":[30.7,60.7,75.0,73.5,61.1,57.6],"unit":"%","showValues":true,"ylabel":"Settlement win rate by model-versus-market gap","xhead":"Gap between model probability and market price","yhead":"Win rate","label":"Settlement win rate by model-versus-market gap","height":280}</script>
+
+<p>The Q-to-P machinery turned out to be decoration. The mean adjustment it applied to the raw probability was +0.0001, because Breeden-Litzenberger on a sparse chain already returns values clustered against 0 and 1, and a few points of variance-risk-premium correction can't move a number that's sitting at 0.99. Of 888 high-confidence trades, 886 were already above 90% before any adjustment ran. The model also had a side problem: the 672 high-confidence NO trades settled at 83.0%, and the 216 YES trades at 60.6%, which is what you'd expect if the risk-neutral measure is overstating upside and nothing is correcting it.</p>
+<p>The verdict I'd write now is that the model picks the correct side 64.3% of the time and overpays for it. That's a real signal and it isn't a tradeable one, because the interpolation across strikes and maturities that makes the number computable at all introduces an error of the same order as the mispricing it's trying to find.</p>
+
+<h3>Delta, vega and the hedge we never built</h3>
+<p>We managed the greeks and never hedged them. The scorer carried a delta budget and gave every buy and sell a delta term, so the book drifted back toward flat on its own, and by March we'd got noticeably better at not letting one direction accumulate. What the scorer can't do is hedge. A real hedge means shorting perpetuals on a second venue against the binary book, which is another exchange, another set of keys, another margin account and a funding cost against a book worth a few thousand dollars. We never tried it properly. It was a big enough build that it kept losing to whatever was in front of us.</p>
+<p>So the book carried whatever delta the model handed it, and the wallet shows it. Single days moved by $100 to $300 on an open cost basis of a few thousand: <span class="neg">−$119</span> on 27 January, +$299 three days later, +$116 on 7 February and <span class="neg">−$179</span> the day after. The range markets were the clearest case. Buying "between $68,000 and $70,000" is a short-volatility position however you label it, and the between direction was the only one that lost money over the whole run (<span class="neg">−$111</span> settled, against +$655 on the directional above markets). We removed it from production on 23 March.</p>
+<p>The volatility story is the one part of this I remembered wrong, and the data is worth writing down. The run-up to +$612 happened while Deribit's BTC volatility index went from about 42 to 59, which is what a long-volatility book does when volatility shows up. The decay isn't the mirror image. From 7 February to the end of March the index averaged 54, above the 43 it averaged during the run-up, so the book gave its gains back while volatility stayed high. Volatility didn't fall until April and May (44, then 38), by which point the strategy had already been retired. Whatever cost us the second half, it wasn't volatility collapsing. On the evidence above it was the pricing error, arriving in size because the sizing rule was reading that error as confidence.</p>
+<aside class="note"><b>One more that never traded.</b> The same measure-change idea has a sports version, and we wrote it up in February. De-vigged Pinnacle closing lines are about as well calibrated as public probability forecasts get, and Polymarket sports markets sit 2 to 8 points away from them. We built the de-vigging (Shin's model rather than proportional normalisation, which mishandles the favourite-longshot bias) and collected the data, and it became the public <a href="https://github.com/ADnocap/taut-arb-backtest">taut-arb-backtest</a> release: 5,171 sports events aligned to Pinnacle odds, alongside 30,180 settled crypto markets. It never became a live strategy. The 15-minute markets got interesting first.</aside>
+
+<h2 id="fifteen">Generation two: the 15-minute markets</h2>
+<p>Polymarket lists a binary market every fifteen minutes for each of BTC, ETH, SOL and XRP, on whether the price will be up or down at settlement. Each contract pays $1 or $0. Up and Down have separate order books, so the two asks don't have to sum to one. And because a market settles every 15 minutes, a strategy settles a few hundred times a day. That volume is the appeal. A hypothesis gets answered in days instead of quarters, which is the opposite of the daily markets above, where a bad assumption took six weeks to show up.</p>
+<p>The edge we spent most of our time on is the oldest one in binary markets. Ten minutes before settlement, across 10,113 collected markets, the side priced near 0.80 wins about 90% of the time and the side priced near 0.20 wins about 8%. So favourites are underpriced and longshots are overpriced.</p>
 
 <figure class="fig">
   <img src="../../assets/fig/polymarket/calibration_tte_10m.png" alt="Calibration curve of Polymarket 15-minute Up/Down markets ten minutes before settlement: realised probability of Up against the implied probability from the Up ask. The curve is S-shaped around the diagonal." width="1050" height="1050" loading="lazy">
   <figcaption>Implied versus realised probability of Up, ten minutes before settlement, on 10,113 collected 15-minute markets (all four assets). Brier score 0.127. Favourites above 0.6 are underpriced and longshots below 0.4 are overpriced. The bin counts are printed above each point. <span class="src">Source: minute-level order-book snapshots covering September 2025 to April 2026 for BTC and ETH and late February to April 2026 for SOL and XRP, analysed 12 April 2026.</span></figcaption>
 </figure>
 
-<h2 id="the-strategies">The strategies</h2>
-<p>We researched six crypto Up/Down strategy families. S5 and S6 have live records. S4 and S8 traded briefly, and S1 and S7 never traded. Where a number comes from a backtest, it's labelled as one. The Sharpe figures on this page aren't computed the same way, so they can't be compared with each other and they aren't fund-style numbers. The S7 pair (9.5 and 0.85) is annualised from daily-summed backtest P&amp;L, counting only days on which a trade settled. The S4 figure (2.2) is annualised from weekly portfolio returns over about 31 weeks, with open positions valued at cost. The sizing-study figures further down are per-trade ratios on binary payoffs.</p>
+<p>We researched six strategy families on these markets. S5 and S6 have live records, S4 and S8 traded briefly, and S1 and S7 never traded. Backtest numbers are labelled as backtests. The Sharpe figures aren't computed the same way as each other and none of them are fund-style numbers: the S7 pair is annualised from daily-summed backtest P&amp;L on days a trade settled, the S4 figure from weekly portfolio returns over about 31 weeks, and the sizing figures further down are per-trade ratios on binary payoffs.</p>
 <ol class="strats">
   <li>
     <div class="name"><b>S5</b>Favourite press <span class="chip">traded live</span></div>
@@ -104,7 +158,7 @@
   <li>
     <div class="name"><b>S4</b>Model-priced daily markets <span class="chip">backtest</span></div>
     <dl>
-      <dt>Idea</dt><dd>Price 4- to 30-day above/below markets with the <a href="../phantom/">Phantom</a> forecaster's Student-t distribution and buy whichever side has edge.</dd>
+      <dt>Idea</dt><dd>The same daily above/below markets as generation one, priced with the <a href="../phantom/">Phantom</a> forecaster's Student-t distribution instead of the options surface.</dd>
       <dt>Evidence</dt><dd>Backtest only, August 2025 to March 2026: 1,118 trades, 67% win rate, weekly Sharpe 2.2, maximum drawdown −36% with delta-aware sizing.</dd>
       <dt>Outcome</dt><dd>21 live executions in April. There's no live result worth reporting.</dd>
     </dl>
@@ -133,7 +187,7 @@
 </figure>
 
 <h2 id="the-system">The system</h2>
-<p>The first generation, written in December and January, was a monolith: a cross-venue matcher (sentence embeddings and a language model to pair equivalent markets across exchanges), a Deribit-priced fair-value engine for daily BTC and ETH markets, and an executor that could place live orders from 23 January. We retired it in March for a hub-and-worker design that we ran until June.</p>
+<p>Generation one was a monolith: the cross-venue matcher, the Deribit-priced fair-value engine, a dashboard and an executor that could place live orders from 23 January. We retired it in March for a hub-and-worker design that ran until June.</p>
 <aside class="note"><b>Data engineering.</b> For the tick-level research we used the pmxt Polymarket order-book archive (CC BY 4.0). It comes as hourly Parquet files of 500 to 900 MB, about 37 million rows each. Six DuckDB workers read them over HTTP with predicate pushdown on the market IDs we needed, after resolving those IDs through the exchange's metadata API at about 200 requests per second. The February to April extract was estimated at 50 to 80 GB.</aside>
 <ul>
   <li><b>Hub.</b> A FastAPI process that owns the strategy registry, the state aggregator, a WebSocket that broadcasts state to the dashboard once a second, and an IPC server. Persistence is SQLite in write-ahead mode, holding positions, executions, wallet snapshots and an activity log.</li>
@@ -144,16 +198,8 @@
 <p>The production tree came to about 20,000 lines of Python and 6,700 of TypeScript, in a repository of 505 commits, running on a small cloud server. I wrote the large majority of it.</p>
 
 <h2 id="what-happened-live">What happened live</h2>
-<p>The hub went live on 28 March with three strategies on a different market type (negative-risk multi-outcome markets): a dispersion trade, an Avellaneda-Stoikov market maker with a regime switch on order-flow toxicity, and a tail-theta position. In eleven days the market maker lost $168.64 and the others roughly broke even. We retired all three on 9 April when S5 and S6 replaced them.</p>
-<p>S5 traded from 9 April. An execution audit over its first eleven days (2,527 intended buys, 95.4% filled, median signal-to-fill latency 4.31 seconds) found that price slippage was slightly favourable. It also found that the realised win rate, 78.2% with a 95% interval of 76.5 to 79.8%, was significantly above the backtest's 75.6% (binomial z = 3.02). The implementation shortfall came from failed and partial fills. Prices weren't the problem. Figure 3 shows those days.</p>
-
-<figure class="fig">
-  <div class="chart" data-chart="bars" data-src="#s5-daily"></div>
-  <figcaption>S5 settled P&amp;L per day over the first live window, 9 to 20 April 2026 (the last day is partial), from the execution audit. Ten of the twelve days were positive, and the two negative days are small. <span class="src">Source: the strategy's slippage audit against the exchange's fill records, 20 April 2026.</span></figcaption>
-</figure>
-<script type="application/json" id="s5-daily">{"categories":["Apr 9","Apr 10","Apr 11","Apr 12","Apr 13","Apr 14","Apr 15","Apr 16","Apr 17","Apr 18","Apr 19","Apr 20"],"values":[-2.86,134.54,93.00,96.97,128.81,17.19,3.42,103.53,28.86,66.26,146.28,-14.96],"unit":"","ylabel":"Settled P&L per day, USD","xhead":"Day","yhead":"P&L (USD)","label":"S5 daily settled P&L, 9 to 20 April 2026","height":280}</script>
-
-<p>In the second half of April the dashboard's cumulative curve (Figure 4) peaked near +$800 and gave back a third of it. Almost all of that was ETH, which lost $194 on the dashboard ($181 after reconciliation), while XRP made $466 and SOL made $261.</p>
+<p>The hub went live on 28 March with three strategies on a different market type, the negative-risk multi-outcome markets: a dispersion trade on the constraint that the outcome prices have to sum to one, an Avellaneda-Stoikov market maker with a regime switch on order-flow toxicity, and a tail-theta position. In eleven days the market maker lost $168.64 and the other two roughly broke even. We retired all three on 9 April when S5 and S6 replaced them. The dispersion signal itself was real, and mean-reverting with a half-life of 42 to 157 minutes across all eight events we tested, but it only paid on events with a clear favourite and only in the last month before settlement, which is a narrower opportunity than it first looked.</p>
+<p>S5 traded from 9 April. An execution audit over its first eleven days (2,527 intended buys, 95.4% filled, median signal-to-fill latency 4.31 seconds) found that price slippage was slightly favourable, and that the realised win rate, 78.2% with a 95% interval of 76.5 to 79.8%, was significantly above the backtest's 75.6% (binomial z = 3.02). The implementation shortfall came from failed and partial fills. Prices weren't the problem. In the second half of April the dashboard's cumulative curve peaked near +$800 and gave back a third of it, almost all of it ETH, which lost $194 on the dashboard while XRP made $466 and SOL made $261.</p>
 <p>The reconciliation in May also found that the dashboard had been counting partial fills that never completed. Against the on-chain record, S5's result from 10 to 28 April was +$383 on 3,037 trades, a 78.0% win rate and +0.80% per dollar rolled. The screen had said +$549. Slippage over all 3,037 trades summed to $3.</p>
 
 <figure class="fig wide">
@@ -169,15 +215,10 @@
 
 <p>By May the exchange had migrated its order API and we spent the last engineering commits on fee accounting. The tuning memo written at that point recommended dropping ETH, tightening the sum-of-asks filter to 1.02 and trading only the 10 to 15 minute entry window. It also prescribed a two-week verification period before scaling. We didn't run that verification. The MSc, the internship and the research were taking the time, and the numbers showed a small, real, fragile edge on a small wallet, so we stopped.</p>
 
-<figure class="fig wide">
-  <div class="chart" data-chart="pnl" id="pm-pnl-chart"></div>
-  <figcaption>Cumulative profit and loss for the wallet as reported by Polymarket's public profile, December 2025 to September 2026, one point per day. This is wallet-level, so it includes the first-generation system, every strategy above, the June pilots and any other activity on the shared wallet. It's also the exchange's mark, not ours. <span id="pm-pnl-summary"></span> <span class="src">Source: Polymarket's public P&amp;L endpoint for the account, snapshot taken 2 September 2026.</span></figcaption>
-</figure>
-
 <h2 id="postmortem-1">Postmortem 1: fifteen minutes of look-ahead</h2>
 <p>In April we researched an hourly strategy. Fifteen minutes before settlement, find the "above $X" market whose strike sits nearest the spot price and trade its favourite. The first backtest came back with a 98.8% win rate, +8.3% return on stake and an annualised Sharpe of 9.5 on daily backtest P&amp;L. Numbers like that are what made us look again.</p>
 <p><b>The bug was one function argument.</b> The helper that fetched the spot price to choose the strike was being called with the settlement time instead of the entry time. So the backtest picked its strike already knowing where the price would end up. Fifteen minutes of BTC drift is enough to turn a coin flip into a near-certainty.</p>
-<p>With the entry-time price the strategy still wins 94.5% of its trades, because favourites near settlement usually do. But the losses are about fifteen times the size of the wins. Over 696 trades the corrected backtest makes $85 at 25 contracts a trade, a 0.52% return on stake, an annualised Sharpe of 0.85 on daily P&amp;L and a $155 drawdown. Figure 7 is the corrected curve and the table is the before and after.</p>
+<p>With the entry-time price the strategy still wins 94.5% of its trades, because favourites near settlement usually do. But the losses are about fifteen times the size of the wins. Over 696 trades the corrected backtest makes $85 at 25 contracts a trade, a 0.52% return on stake, an annualised Sharpe of 0.85 on daily P&amp;L and a $155 drawdown.</p>
 
 <figure class="fig wide">
   <img src="../../assets/fig/polymarket/s7_equity_postfix.png" alt="Corrected S7 backtest: cumulative P&L over 696 trades climbing to about 190 dollars then decaying to about 85, with drawdown shading, and a scatter of per-trade P&L showing many small wins and a few losses near minus 20 dollars." width="1600" height="1028" loading="lazy">
@@ -214,11 +255,11 @@
 
 <h2 id="smaller-things-we-learned">Smaller things we learned</h2>
 <ul>
-  <li><b>Execution is the strategy.</b> Polymarket charged a 7.2% taker fee on these crypto markets. Every configuration of the streak-reversal strategy is profitable as a maker and loses as a taker on the same trades. Figure 10 shows it.</li>
+  <li><b>Execution is the strategy.</b> Polymarket charged a 7.2% taker fee on these crypto markets. Every configuration of the streak-reversal strategy is profitable as a maker and loses as a taker on the same trades.</li>
   <li><b>Sizing isn't edge.</b> In a walk-forward study of the favourite-press gates (8,726 markets, 60/40 split), half-Kelly sizing multiplied both profit and drawdown by 2.5 and left the per-trade Sharpe unchanged at 0.38. Rule-based size tilts made it worse (0.34). The production filter on its own lifted it from 0.27 to 0.38, and a logistic expected-value gate reached 0.41 with a third fewer trades.</li>
   <li><b>The edge sat in one bucket.</b> In the 18-day live sample, trades where the two asks summed to between 1.00 and 1.02 made $521 (n = 2,070, z = 2.39). Every wider-spread bucket lost. Entries 10 to 15 minutes before settlement made money and entries 5 to 10 minutes before didn't.</li>
   <li><b>Within-window moves matter in a barbell.</b> Over 2,346 paper trades, the favourite's edge over break-even was +3.0 points when the underlying had barely moved since the window opened, +0.1 when it had moved 5 to 10 basis points, and +5.9 when it had moved more than 20.</li>
-  <li><b>A fair value from options wasn't a better price.</b> A June research memo priced daily and 4-hour markets off Deribit at-the-money implied volatility (a no-smile model built on sparse, 15-minute trade-print anchors), with pre-registered gates, over 1,304 markets. On daily "above" ladders the model was statistically indistinguishable from the market mid (Brier difference −0.0012, 95% interval including zero). On 4-hour markets the market was clearly better. The memo's one positive was a NO-side edge on entries taken when the model's fair value sat more than 2 or 3 cents from the executable price. That had n = 71 to 108, and the memo itself flagged it as a launch-window effect, expected to decay as other quoters arrived (the series was three weeks old).</li>
+  <li><b>The options fair value came back a second time, and lost again.</b> A June memo priced daily and 4-hour markets off Deribit at-the-money implied volatility, with pre-registered gates, over 1,304 markets. On daily "above" ladders the model was statistically indistinguishable from the market mid (Brier difference −0.0012, with an interval containing zero). On 4-hour markets the market was clearly better. Its one positive was a NO-side edge on 71 to 108 trades, which the memo itself flagged as a launch-window effect.</li>
 </ul>
 
 <figure class="fig wide">
@@ -241,7 +282,7 @@
 </figure>
 <script type="application/json" id="v2-build">{"categories":["Jun 13","Jun 14","Jun 15","Jun 16","Jun 17"],"values":[19502,7343,4234,1650,989],"ylabel":"Lines added","showValues":true,"valfmt":null,"xhead":"Day","yhead":"Lines added","label":"Lines added per day during the June rewrite","height":240}</script>
 
-<p>The first strategy was a two-sided maker on the noon daily BTC and ETH markets. The research behind it found that a fair value from the Deribit volatility surface beats the market's own Brier score (0.0631 versus 0.0643 on 2.9 million observations across 7,402 markets). It also found that centring quotes on that fair value hurts in every simulated configuration. So the maker quotes around the book mid, the model stays out of it entirely, and risk is handled by inventory caps. It went live at ten shares a quote with a $50 daily loss cap.</p>
+<p>The first strategy was a two-sided maker on the noon daily BTC and ETH markets, which is the same market generation one had traded and a different way of standing in it. The research behind it found that a fair value from the Deribit volatility surface does beat the market's own Brier score (0.0631 versus 0.0643 on 2.9 million observations across 7,402 markets). It also found that centring quotes on that fair value hurts in every simulated configuration, down to a 5% weight. That pair of results is the whole lesson from generation one, measured properly: the surface knows something, and it isn't accurate enough to price against. So the maker quotes around the book mid, the model stays out of it entirely, and risk is handled by inventory caps. It went live at ten shares a quote with a $50 daily loss cap.</p>
 <p>The pilot ran for three days and each one turned up a problem:</p>
 <ul>
   <li><b>15 June.</b> The maker re-quoted at about 290 orders a minute with zero fills and built a backlog the gateway couldn't drain. I fixed it with an absolute re-quote threshold and one order per leg, and the order rate fell to about three a minute.</li>
@@ -252,8 +293,10 @@
 
 <h2 id="what-i-would-do-differently">What I would do differently</h2>
 <ul>
+  <li>Test the premise before building the machinery. Generation one took two months of options mathematics to reach a question we could have answered in a week: how far is the model's probability from the market's, and is the model more right when the gap is wide? The answer was no, and it was available from the first thousand settled markets.</li>
   <li>Keep one consolidated ledger from the first trade. The whole-run P&amp;L of the system can only be rebuilt from the exchange, because the research databases, the dashboard tables and the audit scripts each covered part of the period.</li>
   <li>Reconcile against on-chain fills every day instead of at month end. The phantom-fill bug hid for three weeks.</li>
+  <li>Size on the market's price and not on the model's confidence. The trades where the two disagreed most are the ones where the model was worst, and Kelly on a model probability puts the most capital exactly there.</li>
   <li>Start with the fail-closed gateway. The June architecture is what the March system should have been. We built the March system to answer a research question fast, and it did.</li>
   <li>Write the stop rule down before going live. We stopped for good reasons, but the tuning memo's two-week verification was the right experiment and it never ran.</li>
 </ul>
@@ -263,11 +306,10 @@
 </main>
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>
-  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="../../assets/Alexandre_Dalban_CV.pdf">CV (PDF)</a></span>
-  <span>Hand-written HTML, CSS and SVG. No framework, no analytics. Updated September 2026.</span>
+  <span><a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="../../assets/Alexandre_Dalban_CV.pdf">CV</a></span>
 </footer>
-<script src="../../charts.js?v=e48a3491" defer></script>
-<script src="../../live.js?v=e48a3491" defer></script>
+<script src="../../charts.js?v=78fa95ba" defer></script>
+<script src="../../live.js?v=78fa95ba" defer></script>
 <script>(function(){var t=document.querySelector('.toc');if(!t)return;var links=[].slice.call(t.querySelectorAll('a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);function on(){var y=window.scrollY+140,cur=hs[0];hs.forEach(function(h){if(h.offsetTop<=y)cur=h;});links.forEach(function(a){a.parentNode.classList.toggle('on',!!cur&&a.getAttribute('href')==='#'+cur.id);});}window.addEventListener('scroll',on,{passive:true});window.addEventListener('resize',on);on();})();</script>
 
 </body>

@@ -164,6 +164,12 @@ blockquote { margin: 0 0 1.1em; padding-left: 16px; border-left: 2px solid var(-
 /* ---------- page furniture ---------- */
 .kicker { font-family: var(--sans); font-size: 13.5px; color: var(--ink-3); margin: 0 0 8px; }
 .lede { font-size: 20.5px; line-height: 1.45; color: var(--ink-2); font-variation-settings: "opsz" 22; margin: 0 0 24px; }
+
+/* download row, for a page whose point is the file */
+.dl { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 30px; }
+.btn { display: inline-block; font-family: var(--sans); font-size: 15px; font-weight: 500; line-height: 1; color: var(--paper); background: var(--ink); border: 1px solid var(--ink); border-radius: 4px; padding: 13px 22px; text-decoration: none; }
+.btn:hover { background: var(--link); border-color: var(--link); color: #fff; }
+.dl-meta { font-family: var(--sans); font-size: 13.5px; color: var(--ink-3); }
 .meta { font-family: var(--sans); font-size: 14px; line-height: 1.45; color: var(--ink-2); display: grid; grid-template-columns: max-content 1fr; gap: 7px 18px; margin: 0 0 30px; padding: 14px 0 0; border-top: 1px solid var(--rule); }
 .meta dt { color: var(--ink-3); }
 .meta dd { margin: 0; }
@@ -330,5 +336,6 @@ details.data table { margin-top: 6px; }
   body { font-size: 12pt; color: #000; background: #fff; }
   .note { margin: 6px 0; border-left: 1px solid #000; padding-left: 8px; }
   .article { margin: 0; width: auto; }
+  .btn { background: none; color: #000; border: 1px solid #000; }
   a { color: #000; text-decoration: none; }
 }

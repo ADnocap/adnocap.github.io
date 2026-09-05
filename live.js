@@ -37,7 +37,7 @@
   function polymarketPnl(d) {
     const pts = d.map(p => [new Date(p.t * 1000).toISOString().slice(0, 10), Math.round(p.p * 100) / 100]);
     const j = document.createElement("script"); j.type = "application/json"; j.id = "pm-pnl-json";
-    j.textContent = JSON.stringify({ points: pts, name: "Wallet P&L", ylabel: "Cumulative P&L reported by Polymarket, USD", markers: [{ date: "2026-01-23", label: "executor" }, { date: "2026-03-28", label: "hub/worker" }, { date: "2026-04-09", label: "S5" }, { date: "2026-06-15", label: "V2 pilots" }], xticks: 6, height: 320, width: 960, label: "Polymarket wallet P&L over time" });
+    j.textContent = JSON.stringify({ points: pts, name: "Wallet P&L", ylabel: "Cumulative P&L reported by Polymarket, USD", markers: [{ date: "2026-01-20", label: "Deribit pricing" }, { date: "2026-03-28", label: "hub/worker" }, { date: "2026-04-09", label: "favourite press" }, { date: "2026-06-15", label: "V2 pilots" }], xticks: 6, height: 320, width: 960, label: "Polymarket wallet P&L over time" });
     document.body.appendChild(j);
     const h = $("#pm-pnl-chart"); if (h && window.renderChart) { h.setAttribute("data-src", "#pm-pnl-json"); window.renderChart(h); }
     const last = pts[pts.length - 1], mx = pts.reduce((a, p) => p[1] > a[1] ? p : a), mn = pts.reduce((a, p) => p[1] < a[1] ? p : a);
