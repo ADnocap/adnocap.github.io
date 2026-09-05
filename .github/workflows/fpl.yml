@@ -28,5 +28,7 @@ jobs:
           else
             git add data/fpl.json
             git commit -m "data: refresh FPL tracker"
+            # main may have moved since checkout; rebase rather than fail the run
+            git pull --rebase --autostash origin main
             git push
           fi
