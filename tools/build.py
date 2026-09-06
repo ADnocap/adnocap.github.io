@@ -38,10 +38,8 @@ HEAD = """<!doctype html>
 <meta property="og:url" content="{url}">
 <link rel="canonical" href="{url}">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23161616'/%3E%3Cpath d='M6 24 L13 9 L20 24 M9 19 h8 M22 14 h5 M22 19 h5' stroke='%23fbfbf9' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{rel}style.css?v={ver}">
+{preload}
 <script>(function(){{var m=/[?&]theme=(light|dark)/.exec(location.search);if(m)document.documentElement.setAttribute("data-theme",m[1]);}})();</script>
 </head>
 <body>
@@ -76,6 +74,11 @@ def parse(text):
 
 SPY = """<script>(function(){var t=document.querySelector('.toc');if(!t)return;var links=[].slice.call(t.querySelectorAll('a[href^="#"]'));var hs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));}).filter(Boolean);function on(){var y=window.scrollY+140,cur=hs[0];hs.forEach(function(h){if(h.offsetTop<=y)cur=h;});links.forEach(function(a){a.parentNode.classList.toggle('on',!!cur&&a.getAttribute('href')==='#'+cur.id);});}window.addEventListener('scroll',on,{passive:true});window.addEventListener('resize',on);on();})();</script>
 """
+
+# The faces every page paints with. Preloading them means the browser starts fetching
+# while it is still parsing the stylesheet, rather than after it finds the @font-face rule.
+PRELOAD = ("assets/fonts/newsreader-latin-cY9CfjOC.woff2",
+           "assets/fonts/ibm-plex-sans-latin-zYXzKVEl.woff2")
 
 OUT_ROOT = ROOT     # --drafts redirects every page into _preview/ so the real tree is never touched
 NAV_EXTRA = []      # (label, path, section) for pages that declare `nav:`; see main()
@@ -156,12 +159,16 @@ def build_one(path):
         body = filter_counts(body)
     body, spy = enrich(body)
     scripts += spy
+    preload = "\n".join(
+        f'<link rel="preload" href="{rel}{f}" as="font" type="font/woff2" crossorigin>'
+        for f in PRELOAD)
     draft_nav = "".join(
         '    <a href="{}{}"{}>{}</a>\n'.format(rel, npath, ' aria-current="page"' if section == nsec else "", label)
         for label, npath, nsec in NAV_EXTRA)
     html = HEAD.format(
         title=meta["title"], description=meta.get("description", ""), url=url, rel=rel, site=SITE, ver=VER,
         cur_work=' aria-current="page"' if section == "work" else "", draft_nav=draft_nav,
+        preload=preload,
     ) + body.strip() + FOOT.format(rel=rel, scripts=scripts)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "index.html").write_text(html, encoding="utf-8", newline="\n")
