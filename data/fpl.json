@@ -1,12 +1,12 @@
 {
- "updated_utc": "2026-09-15T11:49:00Z",
+ "updated_utc": "2026-09-22T11:43:47Z",
  "season": "2026/27",
  "entry_id": 8737706,
  "team_name": "Claude FC",
- "overall_points": 260,
- "overall_rank": 3743912,
- "total_players": 10795208,
- "gameweeks_finished": 3,
+ "overall_points": 296,
+ "overall_rank": 4844184,
+ "total_players": 10945606,
+ "gameweeks_finished": 5,
  "gameweeks": [
   {
    "gw": 1,
@@ -62,6 +62,20 @@
    "value": 1001,
    "average": 69,
    "highest": 151,
+   "chip": null
+  },
+  {
+   "gw": 5,
+   "points": 36,
+   "total": 296,
+   "rank": 4844249,
+   "gw_rank": 9176671,
+   "transfers": 0,
+   "hit": 0,
+   "bench": 0,
+   "value": 1003,
+   "average": 48,
+   "highest": 126,
    "chip": null
   }
  ],
