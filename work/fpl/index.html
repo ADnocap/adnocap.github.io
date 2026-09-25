@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fantasy Premier League, predict and optimise · Alexandre Dalban</title>
-<meta name="description" content="I built a LightGBM point predictor and a mixed-integer squad optimiser for Fantasy Premier League, backtested them on two seasons, and now use them to plan a real entry that this page tracks weekly.">
+<meta name="description" content="I built a LightGBM point predictor and a mixed-integer squad optimiser for Fantasy Premier League, backtested them on three seasons, and now use them to plan a real entry that this page tracks weekly.">
 <meta property="og:title" content="Fantasy Premier League, predict and optimise · Alexandre Dalban">
-<meta property="og:description" content="I built a LightGBM point predictor and a mixed-integer squad optimiser for Fantasy Premier League, backtested them on two seasons, and now use them to plan a real entry that this page tracks weekly.">
+<meta property="og:description" content="I built a LightGBM point predictor and a mixed-integer squad optimiser for Fantasy Premier League, backtested them on three seasons, and now use them to plan a real entry that this page tracks weekly.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://adnocap.github.io/work/fpl/">
 <link rel="canonical" href="https://adnocap.github.io/work/fpl/">
@@ -25,20 +25,21 @@
   </nav>
 </header>
 <main class="article">
-<p class="kicker">Work · live season &middot; 6 min read</p>
+<p class="kicker">Work · live season &middot; 5 min read</p>
 <h1>Fantasy Premier League, predict and optimise</h1>
 <p class="lede">I built a point predictor and a squad optimiser, and they plan a real Fantasy Premier League entry each week of the 2026/27 season. The tracker below refreshes itself from the game's public API, so this page is also the entry's scoreboard.</p>
 
 <dl class="meta">
-  <dt>Dates</dt><dd>March 2026 (engine, environment, first models). Live-season rebuild August 2026. Running weekly.</dd>
+  <dt>Dates</dt><dd>March 2026 (engine, first models). Live-season rebuild August 2026. Leak fix and model rebuild September 2026. Running weekly.</dd>
   <dt>Status</dt><dd><span class="chip live">live season</span> my own entry, updated after each gameweek</dd>
   <dt>Role</dt><dd>Mine: engine, data collectors, predictor, optimiser, live-season tooling, backtests. Two contributors in April: a SHAP explainability script and an analysis report on the expected-points feature. Built with Claude Code.</dd>
-  <dt>Code</dt><dd><a href="https://github.com/ADnocap/FPL-RL">github.com/ADnocap/FPL-RL</a>, public</dd>
+  <dt>Code</dt><dd><a href="https://github.com/ADnocap/FPL-Optimizer">github.com/ADnocap/FPL-Optimizer</a>, public</dd>
 </dl>
 <div class="toc-wrap"><nav class="toc" aria-label="On this page"><p class="toc-h">On this page</p>
 <ol>
 <li><a href="#tracker">Season tracker</a></li>
 <li><a href="#how-it-works">How it works</a></li>
+<li><a href="#predictor-accuracy">Predictor accuracy</a></li>
 <li><a href="#backtests">Backtests</a></li>
 <li><a href="#experiments-that-did-not-make-it">Experiments that didn't make it</a></li>
 <li><a href="#known-gaps">Known gaps</a></li>
@@ -68,58 +69,50 @@
   <tbody></tbody>
 </table>
 </div>
-<p class="small">Where the entry has departed from the optimiser's plan so far: in GW2 I didn't make the recommended transfer (João Pedro out, Gyökeres in), but I did make the captain switch. I'll add later departures here.</p>
+<p class="small">Where the entry has departed from the optimiser's plan so far: in GW2 I didn't make the recommended transfer (João Pedro out, Gyökeres in), but I did make the captain switch. In GW3, GW4 and GW5 I picked a different captain from the model's (Haaland, João Pedro and Haaland instead of Bruno Fernandes, Bruno Fernandes and Stach). In GW5 I also declined the hits it wanted and rolled the free transfer. I'll add later departures here.</p>
 
 <h2 id="how-it-works">How it works</h2>
-<p>The system is predict-and-optimise. A LightGBM point predictor (one booster per position, 122 features) estimates each player's expected points for the coming gameweek from ten seasons of history. That history comes from the community's season archives, Understat expected goals and assists, prior-season stats from FBref and FotMob, Pinnacle match odds, the game's own expected-points field, the new defensive-contribution counts, and since August the bookmakers' player-prop odds.</p>
-<p>A mixed-integer programme (PuLP with the CBC solver) then picks the squad, the transfers under the real bank, selling-price and free-transfer rules, the starting eleven, the captain, and a bench order weighted by auto-substitution probabilities.</p>
-<aside class="note"><b>Why an engine.</b> The rules are the hard part: eight legal formations, chips with half-season expiry, free transfers banking to five, selling price equal to purchase price plus half the appreciation, hits of four points, automatic substitutions with captain failover, double and blank gameweeks. I put all of them in one stateless engine, covered by 368 tests, and the optimiser, the backtests and the live season all call it.</aside>
-<p>The project started as reinforcement learning, and the environment still exists. It has an 18-dimensional action space (five transfer pairs, lineup, captain and chip) and a 1,363-dimensional observation, and the agent is MaskablePPO, run on a 40-CPU cluster node. The RL agent has no validated result against the optimiser on held-out seasons, so despite the repository's name it stays a research path and the optimiser is what runs. The repository's own rule is to retrain the agent only if it beats the optimiser on holdout.</p>
+<p>The system is predict-and-optimise. A LightGBM point predictor estimates each player's expected points for the coming gameweeks from 121 features, trained on ten seasons of history plus the current season's completed gameweeks. The features come from the community's season archives and the game's own API (including its expected-points field from the previous gameweek), prior-season stats from Understat and FotMob, and bookmakers' player-prop odds.</p>
+<p>The predictor has two parts. A minutes model gives the probability that a player doesn't play, plays under an hour, or plays an hour or more. Half of the prediction is those probabilities times the expected points in each case, and the other half is a points model that also sees them. The minutes model was the largest single gain, +0.015 in rank correlation, and it was better in all 38 gameweeks of both holdout seasons.</p>
+<p>A mixed-integer programme (PuLP with the CBC solver) then plans transfers three gameweeks ahead under the real bank, selling-price and free-transfer rules, and only takes a four-point hit when the plan gains clearly more than four. It also picks the starting eleven, the captain, and a bench order weighted by auto-substitution probabilities. Flagged players are scaled by how often players with that flag have actually played.</p>
+<aside class="note"><b>Why an engine.</b> The rules are the hard part: eight legal formations, chips with half-season expiry, free transfers banking to five, selling price equal to purchase price plus half the appreciation, hits of four points, automatic substitutions with captain failover, double and blank gameweeks. I put all of them in one stateless engine, and the optimiser, the backtests and the live season all call it. The repository has 639 tests, 207 of them a rules suite checked against the game's own 2026/27 settings.</aside>
 
-<h2 id="backtests">Backtests</h2>
-<p>I ran two chip-free season replays, each with the predictor trained only on earlier seasons. On 2024/25, using the April scripts and the 86-feature model of that time, the pipeline scores 2,918 net points with at most one transfer per gameweek (37 transfers, no hits) and 3,171 with up to five transfers per gameweek. A no-transfer squad scores 1,950 and a perfect-foresight oracle 3,713. For scale, the highest total a human manager has ever recorded is 2,844, in 2021/22 (<a href="https://www.premierleague.com/news/2632794">Premier League</a>), with chips.</p>
-<p>For 2025/26, the first season under the new defensive-contribution scoring, I wrote a separate harness in August. It retrains its own evaluation model on the seasons before the target and replays the year through the optimiser and the full rules engine. It scores 2,261 at one transfer per gameweek and 2,566 unconstrained (122 transfers, 336 points of hits). Both are below the all-time record, and neither is comparable with a real season played with chips. The two seasons didn't go through the same harness, so their levels aren't directly comparable with each other either.</p>
-
-<figure class="fig wide">
-  <img src="../../assets/fig/fpl/season_backtests.png" alt="Two-panel bar chart of net season points: 2024/25 replay 2,918 at one transfer per gameweek and 3,171 at up to five transfers per gameweek against a best-human line near 2,810 and an oracle ceiling of 3,713; 2025/26 replay 2,261 and 2,566." width="1764" height="774" loading="lazy">
-  <figcaption>Chip-free season replays with the predictor trained only on prior seasons. The 2024/25 replay clears the best human total. The 2025/26 replay at one transfer per gameweek doesn't come close. The dashed human reference in the figure is approximate, and its "unconstrained" label for 2024/25 means up to five transfers per gameweek. <span class="src">Source: 2024/25 bars from the repository's April 2026 season report and README results table; 2025/26 bars from its August 2026 backtest harness.</span></figcaption>
-</figure>
-
-<p>I measured where the gap between the two seasons comes from. The predictor's per-gameweek rank correlation with actual points is 0.75 to 0.79 on every expanding-window fold from 2021/22 to 2025/26. Its error on "haulers" (players scoring five or more), though, jumps from about 3.6 on the four earlier seasons to 5.84 on 2025/26, because the scoring regime changed. Training inside the new era brings it back to 5.23. As far as I can tell, the rest of the 2025/26 gap is that the new scoring rewards a kind of player the historical features don't describe.</p>
+<h2 id="predictor-accuracy">Predictor accuracy</h2>
+<p>The main metric is the per-gameweek Spearman rank correlation between predicted and actual points, because the optimiser only needs the order to be right. Trained only on earlier seasons, the model scores 0.732 on 2024/25 and 0.742 on 2025/26. Over the first five live gameweeks of 2026/27 it scores 0.711, where the game's own expected points score 0.631. Five gameweeks is a small sample. It still under-predicts big hauls.</p>
 
 <figure class="fig">
-  <div class="chart" data-chart="bars" data-src="#spearman"></div>
-  <figcaption>Per-gameweek Spearman correlation between predicted and actual points on expanding-window folds (train on every season before the test season, starting from 2016/17). <span class="src">Source: the stratified benchmark run in the repository.</span></figcaption>
+  <div class="chart" data-chart="hbars" data-src="#live-spearman"></div>
+  <figcaption>Per-gameweek Spearman correlation over 2026/27 gameweeks 1 to 5, every model trained only on complete earlier seasons. "Previous model" is the one I used for those gameweeks, which relied on the leaking feature described below. <span class="src">Source: training log of the model of record in the repository.</span></figcaption>
 </figure>
-<script type="application/json" id="spearman">{"categories":["2021/22","2022/23","2023/24","2024/25","2025/26"],"values":[0.752,0.785,0.766,0.785,0.747],"ymin":0,"ymax":1,"showValues":true,"ylabel":"Per-gameweek Spearman correlation","xhead":"Test season","yhead":"Spearman","label":"Predictor rank correlation by season","height":240}</script>
+<script type="application/json" id="live-spearman">{"categories":["Current model","Leak-fixed LightGBM","Previous model","The game's expected points"],"values":[0.711,0.685,0.654,0.631],"highlight":[0],"decimals":3,"labelWidth":190,"xhead":"Predictor","yhead":"Spearman","label":"Per-gameweek rank correlation on 2026/27 gameweeks 1 to 5"}</script>
 
-<h3>Against other predictors</h3>
-<p>The only clean external comparison scores both models on exactly the same player-gameweek rows. Against theFPLkiwi's public projections, the predictor's per-gameweek rank correlation is 0.756 against 0.694 on 2021/22 (38 gameweeks, 19,603 rows) and 0.798 against 0.701 on 2022/23 (27 gameweeks), with lower error in three of the four outcome bins. theFPLkiwi is better on the three-to-four-point "tickers" bin in both seasons. Under the protocol published with OpenFPL, the predictor trains through 2023/24 and is evaluated on 2024/25 gameweeks 32 to 38. On that protocol its conditional error is lower than the numbers reported in that paper for OpenFPL and for a commercial service in three of four bins, and higher in one. Those competitor figures are quoted from <a href="https://arxiv.org/abs/2508.09992">arXiv 2508.09992</a>, not re-run, so I treat that comparison as indicative.</p>
+<p>Earlier versions of this page reported higher numbers: 2,918 points on a 2024/25 replay and correlations around 0.78. They came from a feature that leaked. The season archives record the game's expected-points value after the gameweek, when it has already been recomputed with that gameweek's own points, and the model had learned to lean on it. Live, it only gets the value from before the deadline, which is why the first five gameweeks went worse than the backtests promised. The model now uses the previous gameweek's value, which is exactly what's known at a deadline.</p>
 
-<figure class="fig wide">
-  <img src="../../assets/fig/fpl/kiwi_head2head.png" alt="Two panels comparing FPL-RL and theFPLkiwi on identical rows: per-gameweek rank correlation and mean absolute error for 2021/22, 2022/23 and a four-gameweek slice of 2023/24. FPL-RL is higher on correlation and lower on error in each." width="1728" height="756" loading="lazy">
-  <figcaption>Head to head on identical rows against theFPLkiwi's archived projections. The 2023/24 column is only four gameweeks. <span class="src">Source: benchmark script in the repository.</span></figcaption>
+<h2 id="backtests">Backtests</h2>
+<p>I replay whole seasons without chips. For each season the evaluation model is trained only on the seasons before it, and every gameweek goes through the rules engine (auto-substitutions, captain failover, free-transfer banking, hits).</p>
+
+<figure class="fig">
+  <div class="chart" data-chart="dots" data-src="#replays"></div>
+  <figcaption>Net season points in chip-free replays, the single-gameweek optimiser against the three-gameweek planner that now runs each week. <span class="src">Source: season replay script in the repository.</span></figcaption>
 </figure>
+<script type="application/json" id="replays">{"categories":["2023/24","2024/25","2025/26"],"before":[2144,2333,2069],"after":[2293,2467,2129],"names":["Single-gameweek optimiser","Three-gameweek planner"],"labelWidth":80,"xhead":"Season","label":"Net season points, single-gameweek optimiser against the three-gameweek planner"}</script>
+
+<p>The planner beat the single-gameweek optimiser in every season, by 60 to 149 points. Differences under about 100 points are within the noise of one replay. The chip schedules I tested moved the totals by −145 to +84, about zero on average, so chip timing stays my decision, with the repository's chip evaluator giving the numbers at each decision point.</p>
 
 <h2 id="experiments-that-did-not-make-it">Experiments that didn't make it</h2>
 <ul>
-  <li><b>Balanced sample weights</b> were meant to help with haulers. They cut the per-gameweek correlation from 0.747 to 0.662.</li>
-  <li><b>A Tweedie loss</b> improved rank correlation by 0.0016 and the zero and blank bins, but it made overall error worse, along with the ticker and hauler bins, where the errors are largest. I rejected it.</li>
-  <li><b>Defensive-contribution features</b> were neutral (rank correlation moved by 0.0005 and error by 0.007 the other way, both within noise). I kept them.</li>
-  <li><b>Head-to-head match odds</b> added nothing.</li>
-  <li><b>Player-prop odds</b> were the one feature win of the summer. They gave −2.5% error and a higher correlation in all eight held-out gameweeks, a small effect that survived the sign test.</li>
-  <li><b>The expected-points "leak".</b> An April report claimed the game's own expected-points field leaked post-match information. Capturing the field mid-gameweek and reproducing its formula to 99.3% showed it doesn't, and it's still the most important feature.</li>
+  <li><b>Understat per-match expected goals and head-to-head match odds</b> added nothing once the leak was gone, and neither is reliably available at a deadline, so both are out of the model.</li>
+  <li><b>Dropping the expected-points field entirely</b> cost 0.004 in rank correlation on 2024/25, so the previous gameweek's value stays in.</li>
+  <li><b>Priors from last season</b> (prior-season points features, cross-season form, shrinkage towards last season) didn't help the early gameweeks.</li>
+  <li><b>Dedicated captain models</b>, an upside model and bookmaker scorer odds, didn't beat captaining the top prediction.</li>
+  <li><b>Weighting recent rows more heavily</b> didn't help.</li>
+  <li><b>A six-gameweek horizon</b> lost to three, and so did a two-point margin on hits in the single-gameweek optimiser.</li>
 </ul>
-
-<figure class="fig wide">
-  <img src="../../assets/fig/fpl/experiment_ledger.png" alt="Horizontal bar chart of experiments by change in per-gameweek rank correlation: tweedie plus 0.0016 rejected, balanced weights minus 0.085, tweedie plus weights minus 0.063; prop odds plus 0.0076 shipped, DEFCON features minus 0.0005 kept." width="1800" height="654" loading="lazy">
-  <figcaption>The summer's experiment ledger, as change in per-gameweek rank correlation. The left panel is loss functions on a full-season evaluation and the right panel is features on an in-era eight-gameweek evaluation, so the scales differ. The defensive-contribution bar is drawn as −0.0005 in the figure, while the pooled measurement is +0.0005, and either way it's zero. <span class="src">Source: experiment logs in the repository, August 2026.</span></figcaption>
-</figure>
 
 <h2 id="known-gaps">Known gaps</h2>
 <ul>
-  <li>The optimiser only plans one gameweek at a time. There's no chip scheduling, no value on banking a free transfer and no fixture-swing planning. This is the largest missing piece.</li>
-  <li>There's no expected-minutes model and no bonus-point model.</li>
+  <li>There's no chip scheduler. The replays can't separate chip schedules from noise, so the chip plan is mine.</li>
+  <li>Predictions for the later gameweeks of a plan are weaker than for the next one, and there's no bonus-point model.</li>
   <li>The live entry is one season of one team. The tracker is a diary, and it doesn't validate anything.</li>
 </ul>
 </main>
