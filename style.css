@@ -291,6 +291,8 @@ blockquote { margin: 0 0 1.1em; padding-left: 16px; border-left: 2px solid var(-
 .site-head nav a { color: var(--ink-2); text-decoration: none; }
 .site-head nav a:hover, .site-head nav a[aria-current="page"] { color: var(--ink); }
 .site-head nav a[aria-current="page"] { border-bottom: 1.5px solid var(--ink); padding-bottom: 2px; }
+/* three tabs and the name need 360.4px at the full gap, so a 360px phone would wrap the name */
+@media (max-width: 400px) { .site-head nav { gap: 16px; } }
 
 .site-foot {
   max-width: calc(var(--measure) + 2 * var(--wide-extra));

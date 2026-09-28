@@ -1,0 +1,118 @@
+<!--
+title: Instance recognition of machining features in B-rep CAD models · Alexandre Dalban
+description: My MSc thesis, written at Siemens in Munich. Three ways of deciding which faces of a CAD part form one machining feature, measured on real industrial parts.
+section: thesis
+path: thesis/
+nav: Thesis
+-->
+<main class="article">
+  <p class="kicker">MSc thesis · Siemens AG, Munich</p>
+  <h1>Instance recognition of machining features in B-rep CAD models</h1>
+  <p class="lede">
+    My MSc thesis, from five months as an applied AI research intern at
+    Siemens. It's about a step CAM engineers still do by hand: looking at a CAD
+    part and deciding which of its faces make up one machining feature. I built
+    three ways of automating it and measured all three on real industrial parts.
+  </p>
+
+  <p class="dl">
+    <a class="btn" href="../assets/Alexandre_Dalban_MSc_thesis.pdf">View the PDF</a
+    ><span class="dl-meta"
+      >67 pages &middot; 7.4 MB &middot; September 2026</span
+    >
+  </p>
+
+  <dl class="meta">
+    <dt>Degree</dt><dd>MSc in Artificial Intelligence Applied to Society, CentraleSupélec, Université Paris-Saclay</dd>
+    <dt>Host</dt><dd>The AI CAD-to-CAM pipeline team, Siemens Foundational Technologies, Research &amp; Pre-Development, Munich</dd>
+    <dt>Supervision</dt><dd>Bertram Fuchs at Siemens, Stergios Christodoulidis at CentraleSupélec</dd>
+    <dt>Dates</dt><dd>4 May to 9 October 2026, with the defence on 13 October</dd>
+  </dl>
+
+  <h2>The problem</h2>
+  <p>
+    A machined part gets designed twice. First it's a shape in a CAD system,
+    then a process in a CAM system, which works out how a machine tool will cut
+    that shape from a block of metal. In between, an engineer reads the solid in
+    manufacturing terms. This bore and the cone under it are one countersunk
+    hole, these five faces are one pocket, that thin band is a chamfer on its
+    rim. Tool choice, sequencing and set-up planning all work from that reading,
+    and it's redone by hand for every new part.
+  </p>
+  <p>
+    Recognising a feature means naming it and grouping its faces. I worked on
+    the grouping: given the faces of a part, decide which ones belong to the same
+    feature. The score is strict. A feature only counts if the predicted group
+    has exactly its faces, because a group missing a face machines an incomplete
+    pocket and a group with an extra one cuts into material that has to stay.
+    Two things make it hard. Labelled real parts are scarce, because companies
+    don't publish them. And the people who label parts don't fully agree on what
+    counts as one feature.
+  </p>
+
+  <h2>Three approaches</h2>
+  <p>
+    <b>A million generated parts.</b> There's no large labelled corpus of
+    realistic parts, so I made one.
+    <a href="https://arxiv.org/abs/2604.24479">Zero-to-CAD</a> is about a million
+    CAD programs written by a language model. I ran each one under an
+    instrumented CAD kernel that records which operation created every face, so
+    the parts label themselves. That gave Z2C-Seg, 961,243 labelled solids. I
+    then continued the self-supervised pretraining of a Point Transformer V3
+    encoder on it, for 5.6 days on two GPUs. When labels were scarce, pretraining
+    was worth ten times as many: with it, 300 labelled parts scored 0.408
+    instance F1, against 0.337 for 3,000 parts without it. The gain peaked after
+    two to four epochs of ten and then faded.
+  </p>
+  <p>
+    <b>A few hundred real parts.</b> This extends
+    <a href="https://arxiv.org/abs/2604.26770">FeatureFox</a>, the recogniser my
+    supervisor and three colleagues built. Gradient-boosted trees score pairs of
+    faces, a threshold keeps the likely links, and each connected group is a
+    feature. I ran it as a ledger where every experiment changed exactly one
+    thing and was scored against its parent on the same five folds. Exact
+    recognition on the curated real parts went from 51% to 76%. Better labels
+    gave 13.6 points of that, more parts 11.2, new features 1.0 and a different
+    decision rule −0.5. A lot of my time went into those labels. I labelled or
+    corrected several hundred parts by hand in Siemens NX. The version the team
+    will ship is trained on the full 283-part pool, where it scores 78.9%.
+  </p>
+  <p>
+    <b>No training at all.</b> An LLM agent works inside Siemens NX through
+    exact geometric tools. It can ask what lies between two faces, what's
+    coaxial with a bore, or which faces are copies of each other, and it reads
+    the labelling conventions as text. Four geometric rules propose a group of
+    faces, the model decides the spots where those rules are known to go wrong,
+    and the faces take their feature's colour in NX as it goes, until every face
+    is placed. On 119 held-out parts it got 76.6% of features exact, against
+    60.6% for the trained classifier on the same parts. Most of that is the
+    rules, which score 74.0% on their own. A part takes about a minute and costs
+    under a cent.
+  </p>
+
+  <h2>What limited all three</h2>
+  <p>
+    All three ran into the same limit, which is how consistently the parts are
+    labelled. In the team's corpus, about a tenth of the coaxial pairs of
+    adjacent faces (10.9%) are labelled the opposite way from a geometrically
+    identical pair in another part. Those pairs are unwinnable for any model
+    that only sees geometry. My supervisor designed an A/B test that changed one
+    rule, whether a chamfer belongs to the feature it cuts into or stands on its
+    own, on the same 20 parts labelled twice with identical folds. Exact
+    recognition went from 60.8% to 70.2%, more than any modelling change I made.
+    The thesis argues that the labelling convention is a design decision, and
+    that it should be written down and tested on fixed folds like a model change.
+  </p>
+
+  <h2>Caveats</h2>
+  <p>
+    The real-part corpora are a few hundred parts each, so a handful of parts
+    can move the mean, and one gain I measured reversed on the next data step.
+    The data steps also grew the test folds, so the 11.2-point gain from more
+    parts is generous. The pretrained encoder was never tested on real parts, so
+    the tenfold figure only holds on generated ones. Every held-out agent number
+    comes from a single run, and parts over 80 faces were left out for cost. The
+    chamfer rule that won the A/B also makes more and simpler groups, which an
+    exact-match metric rewards, so its nine points are an upper bound.
+  </p>
+</main>
