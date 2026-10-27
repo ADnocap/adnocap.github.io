@@ -1,6 +1,6 @@
 <!--
 title: A live trading system on Polymarket · Alexandre Dalban
-description: Seven months of prediction-market trading my collaborator and I built and ran on Polymarket in 2026: a Deribit-priced fair value for daily crypto markets, the favourite-press strategy on 15-minute markets, two postmortems and the fail-closed rewrite that came after.
+description: Seven months of prediction-market trading my collaborator and I built and ran on Polymarket, December 2025 to June 2026: a Deribit-priced fair value for daily crypto markets, the favourite-press strategy on 15-minute markets, two postmortems and the fail-closed rewrite that came after.
 section: work
 path: work/polymarket/
 scripts: charts
@@ -27,12 +27,12 @@ extra_scripts: live.js
 <!-- toc -->
 
 <h2 id="wallet">Seven months in one chart</h2>
-<p>The wallet is public, so the whole run is one line. It's the exchange's own mark, it covers everything the account did, and it's the honest summary of the project: up to +$612 in six weeks, back to break-even by the middle of February, down to <span class="neg">−$182</span> in April, and +$155 when I took the snapshot in September.</p>
+<p>The wallet is public, so the whole run is one line. It's the exchange's own mark, it covers everything the account did, and it sums up the project: up to +$612 in six weeks, back to break-even by the middle of February, down to <span class="neg">−$182</span> in April, and +$155 when I took the snapshot in September.</p>
 <p>The number I'd put next to it is the volume. The account traded <b>$259,999</b> across 6,213 markets to end $155 up. That's about six basis points of the money we pushed through the exchange, on a book that was never more than a few thousand dollars at a time and turned over several hundred times. It's the right way to read everything below: the edges here are real and they're thin, and most of the work went into finding out which ones survived contact with a fee schedule.</p>
 
 <figure class="fig wide">
   <div class="chart" data-chart="pnl" id="pm-pnl-chart"></div>
-  <figcaption>Cumulative profit and loss for the wallet as reported by Polymarket's public profile, December 2025 to September 2026, one point per day. This is wallet-level, so it includes both system generations, every strategy on this page, the June pilots and any other activity on the shared wallet. <span id="pm-pnl-summary"></span> <span class="src">Source: Polymarket's public P&amp;L endpoint for the account, snapshot taken 2 September 2026. The volume and market counts come from the exchange's public leaderboard endpoints for the same wallet, read on 5 September 2026.</span></figcaption>
+  <figcaption>Cumulative profit and loss for the wallet as reported by Polymarket's public profile, December 2025 to September 2026, one point per day. This is wallet-level, so it includes all three generations, every strategy on this page and any other activity on the shared wallet. <span id="pm-pnl-summary"></span> <span class="src">Source: Polymarket's public P&amp;L endpoint for the account, snapshot taken 2 September 2026. The volume and market counts come from the exchange's public leaderboard endpoints for the same wallet, read on 5 September 2026.</span></figcaption>
 </figure>
 
 <p>Four things happened in that line, and the rest of the page is about them.</p>

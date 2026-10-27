@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Instance recognition of machining features in B-rep CAD models · Alexandre Dalban</title>
-<meta name="description" content="My MSc thesis, written at Siemens in Munich. Three ways of deciding which faces of a CAD part form one machining feature, measured on real industrial parts.">
+<meta name="description" content="My MSc thesis, written at Siemens in Munich. Three ways of deciding which faces of a CAD part form one machining feature, two of them measured on real industrial parts.">
 <meta property="og:title" content="Instance recognition of machining features in B-rep CAD models · Alexandre Dalban">
-<meta property="og:description" content="My MSc thesis, written at Siemens in Munich. Three ways of deciding which faces of a CAD part form one machining feature, measured on real industrial parts.">
+<meta property="og:description" content="My MSc thesis, written at Siemens in Munich. Three ways of deciding which faces of a CAD part form one machining feature, two of them measured on real industrial parts.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://adnocap.github.io/thesis/">
 <link rel="canonical" href="https://adnocap.github.io/thesis/">
@@ -32,13 +32,14 @@
     My MSc thesis, from five months as an applied AI research intern at
     Siemens. It's about a step CAM engineers still do by hand: looking at a CAD
     part and deciding which of its faces make up one machining feature. I built
-    three ways of automating it and measured all three on real industrial parts.
+    three ways of automating it. Two were measured on real industrial parts, and the
+    third only on generated ones.
   </p>
 
   <p class="dl">
     <a class="btn" href="../assets/Alexandre_Dalban_MSc_thesis.pdf">View the PDF</a
     ><span class="dl-meta"
-      >67 pages &middot; 7.4 MB &middot; September 2026</span
+      >67 pages &middot; 7.4 MB &middot; October 2026</span
     >
   </p>
 
@@ -94,8 +95,8 @@
     recognition on the curated real parts went from 51% to 76%. Better labels
     gave 13.6 points of that, more parts 11.2, new features 1.0 and a different
     decision rule −0.5. A lot of my time went into those labels. I labelled or
-    corrected several hundred parts by hand in Siemens NX. The version the team
-    will ship is trained on the full 283-part pool, where it scores 78.9%.
+    corrected several hundred parts by hand in Siemens NX. The version I handed
+    over for deployment is trained on the full 283-part pool, where it scores 78.9%.
   </p>
   <p>
     <b>No training at all.</b> An LLM agent works inside Siemens NX through
@@ -105,7 +106,7 @@
     faces, the model decides the spots where those rules are known to go wrong,
     and the faces take their feature's colour in NX as it goes, until every face
     is placed. On 119 held-out parts it got 76.6% of features exact, against
-    60.6% for the trained classifier on the same parts. Most of that is the
+    60.6% for the trained classifier on 117 of them. Most of that is the
     rules, which score 74.0% on their own. A part takes about a minute and costs
     under a cent.
   </p>

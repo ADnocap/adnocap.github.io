@@ -32,11 +32,11 @@
   <div>
     <h1>Alexandre Dalban</h1>
     <dl class="facts">
-      <dt>Now</dt><dd>Applied AI research intern at Siemens in Munich. I'm finishing an MSc in Artificial Intelligence at CentraleSupélec, Paris, and graduate in November 2026</dd>
-      <dt>Before</dt><dd>Previously, I did a BS in Mathematics and Computer Science at Boston College, and spent two summers doing alpha research at LeCap Asset Management, a systematic equity hedge fund in London</dd>
+      <dt>Now</dt><dd>Based in London. I'm finishing an MSc in Artificial Intelligence at CentraleSupélec, Paris, and finish in November 2026</dd>
+      <dt>Before</dt><dd>Until 16 October I was an applied AI research intern at Siemens in Munich. Before that I did a BS in Mathematics and Computer Science at Boston College, and spent two summers doing alpha research at LeCap Asset Management, a systematic equity hedge fund in London</dd>
       <dt>Next</dt><dd>I'm looking for full-time roles from November 2026 in London, the US, the EU or Switzerland. I'm a US and EU citizen with UK settled status, so I don't need visa sponsorship in the UK, the US or the EU</dd>
       <dt>Contact</dt><dd><a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a> &middot; <a href="https://github.com/ADnocap">GitHub</a> &middot; <a href="https://www.linkedin.com/in/alexdalban">LinkedIn</a> &middot; <a href="assets/Alexandre_Dalban_CV.pdf">CV</a></dd>
-      <dt>Start with</dt><dd><a href="work/polymarket/">the Polymarket trading system</a>, seven months of strategies with two postmortems and the wallet curve, and <a href="work/phantom/">Phantom</a>, a forecaster I audited and then corrected in the README and the paper draft</dd>
+      <dt>Start with</dt><dd><a href="work/polymarket/">the Polymarket trading system</a>, seven months of strategies with two postmortems and the wallet curve, and <a href="work/phantom/">Phantom</a>, a forecaster I audited in July and corrected in the README</dd>
     </dl>
   </div>
 </div>
@@ -74,38 +74,38 @@
     </span>
   </li>
   <li data-type="work">
-    <span class="when">May →<span class="type">work</span></span>
+    <span class="when">May–Oct<span class="type">work</span></span>
     <span class="what">
-      <span class="head"><a href="thesis/">Applied AI research intern, Siemens AG, Munich</a> <span class="chip live">current</span></span>
+      <span class="head"><a href="thesis/">Applied AI research intern, Siemens AG, Munich</a> <span class="chip">done</span></span>
       <span class="result">I worked on a step CAM engineers still do by hand, deciding which faces of a CAD part form one machining feature. On real industrial parts, a face-pair classifier went from <b>51%</b> to <b>76%</b> of features recovered exactly, mostly through better labels. On a separate set of 119 held-out parts, an LLM agent inside Siemens NX with nothing trained for the task got 77%, against 61% for the classifier. The write-up is my MSc thesis.</span>
     </span>
   </li>
   <li data-type="research">
     <span class="when">Apr<span class="type">research</span></span>
     <span class="what">
-      <span class="head"><a href="work/phantom/">Phantom, distributional forecasts for 362 cryptocurrencies</a> <span class="chip">audited, paper in prep</span></span>
-      <span class="result">It's a 31.7M-parameter Transformer that predicts Student-t distributions, with an out-of-sample rank IC of <b>0.124</b> at 10 days, positive in 15 of 15 months. I audited it in July and found the Sharpe I'd reported was inflated by about √10, so I corrected it in the README and the paper draft.</span>
+      <span class="head"><a href="work/phantom/">Phantom, distributional forecasts for 362 cryptocurrencies</a> <span class="chip">audited</span></span>
+      <span class="result">It's a 31.7M-parameter Transformer that predicts Student-t distributions, with an out-of-sample rank IC of <b>0.124</b> at 10 days, positive in 15 of 15 months. I audited it in July and found the Sharpe I'd reported was inflated by about √10, so I corrected it in the README and left the old numbers up as errata.</span>
     </span>
   </li>
   <li data-type="competition">
     <span class="when">Apr<span class="type">competition</span></span>
     <span class="what">
       <span class="head"><a href="work/imc-prosperity/">IMC Prosperity 4</a> <span class="chip">done</span></span>
-      <span class="result">Our team of three finished at rank <b>458</b> of 18,803 teams (Finalist Crew). A Rust market simulator reproduced the round-1 bots' quoting rules at 99 to 100% exact match, and there are five documented dead ends.</span>
+      <span class="result">Our team of three finished at rank <b>458</b> of 18,803 teams (Finalist Crew). A market simulator, written in Rust with Claude Code, reproduced the round-1 bots' quoting rules at 99 to 100% exact match, and there are five documented dead ends.</span>
     </span>
   </li>
   <li data-type="project">
     <span class="when">Dec 25–Jun 26<span class="type">project</span></span>
     <span class="what">
       <span class="head"><a href="work/polymarket/">A live trading system on Polymarket</a> <span class="chip">wound down</span></span>
-      <span class="result">I co-built it and ran it on personal capital for seven months, through two generations and a rewrite. The first priced daily crypto markets off the Deribit options surface. The second pressed the favourite on 15-minute markets, which made <b>3,037</b> trades in 18 days at a 78.0% win rate. It traded <b>$260k</b> of volume across 6,213 markets to finish $155 up, and there are two postmortems.</span>
+      <span class="result">My collaborator and I built it and ran it on personal capital for seven months, through two generations and a rewrite. The first priced daily crypto markets off the Deribit options surface. The second pressed the favourite on 15-minute markets, which made <b>3,037</b> trades in 18 days at a 78.0% win rate. It traded <b>$260k</b> of volume across 6,213 markets to finish $155 up, and there are two postmortems.</span>
     </span>
   </li>
   <li data-type="competition">
     <span class="when">Feb<span class="type">hackathon</span></span>
     <span class="what">
-      <span class="head"><span class="title">DeFi Sentinel, HackEurope</span> <span class="chip">2nd place</span></span>
-      <span class="result">We took <b>2nd place</b> in the Solana challenge with a rug-pull detector for new Solana tokens. It was a team project and I built the live-data collectors and the backend. The model that scored best (AUC 0.9995) drew 89% of its importance from deployer history, which doesn't exist when a new token is scanned, so we shipped the restricted one instead.</span>
+      <span class="head"><a href="https://github.com/alidor4702/DeFi-Sentinel">DeFi Sentinel, HackEurope</a> <span class="chip">2nd place</span></span>
+      <span class="result">We took <b>2nd place</b> in the Solana challenge with a rug-pull detector for new Solana tokens. It was a team project, and I built the live-data collectors and the first backend. My teammate's best model (AUC 0.9995) drew 89% of its importance from deployer history, which doesn't exist when a new token is scanned, so we shipped the restricted one instead.</span>
     </span>
   </li>
   <li data-type="project">
@@ -118,8 +118,8 @@
   <li data-type="research">
     <span class="when">Oct 25–Apr 26<span class="type">research</span></span>
     <span class="what">
-      <span class="head"><a href="work/reliability-llm/">A domain-specific LLM for reliability engineering</a> <span class="chip">paper in preparation</span></span>
-      <span class="result">We fine-tuned Qwen3-8B on 866 verified question-answer pairs bootstrapped from 56 textbook problems, and it went from <b>63.6% to 82.2%</b> (10-fold cross-validation, p = 0.002). It's a joint project.</span>
+      <span class="head"><a href="work/reliability-llm/">A domain-specific LLM for reliability engineering</a> <span class="chip">done</span></span>
+      <span class="result">We fine-tuned Qwen3-8B on 866 verified question-answer pairs bootstrapped from 56 textbook problems. Under 10-fold cross-validation it went from <b>63.6% to 82.2%</b> (p = 0.002), but that's in-distribution, and on a 54-question holdout it did worse than the base model. It's a joint project.</span>
     </span>
   </li>
 

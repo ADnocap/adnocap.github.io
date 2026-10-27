@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>A domain-specific LLM for reliability engineering · Alexandre Dalban</title>
-<meta name="description" content="We turned 56 textbook problems into 866 verified training examples and fine-tuned Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions. Joint MSc research, with the paper in preparation.">
+<meta name="description" content="We turned 56 textbook problems into 866 verified training examples and fine-tuned Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions under cross-validation. Joint MSc research.">
 <meta property="og:title" content="A domain-specific LLM for reliability engineering · Alexandre Dalban">
-<meta property="og:description" content="We turned 56 textbook problems into 866 verified training examples and fine-tuned Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions. Joint MSc research, with the paper in preparation.">
+<meta property="og:description" content="We turned 56 textbook problems into 866 verified training examples and fine-tuned Qwen3-8B from 63.6% to 82.2% on reliability-engineering questions under cross-validation. Joint MSc research.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://adnocap.github.io/work/reliability-llm/">
 <link rel="canonical" href="https://adnocap.github.io/work/reliability-llm/">
@@ -32,13 +32,13 @@
 
 <div class="stats">
   <div class="stat"><span class="v">56 → 866</span><span class="l">textbook seeds turned into verified training examples</span></div>
-  <div class="stat"><span class="v">+18.6<small>pp</small></span><span class="l">accuracy went from 63.6% to 82.2% (10-fold cross-validation, Wilcoxon p = 0.002)</span></div>
+  <div class="stat"><span class="v">+18.6<small>pp</small></span><span class="l">accuracy went from 63.6% to 82.2% in-distribution (10-fold cross-validation, Wilcoxon p = 0.002)</span></div>
   <div class="stat"><span class="v">26</span><span class="l">experiments logged on A100 nodes through SLURM, two of them failures</span></div>
 </div>
 <dl class="meta">
   <dt>Dates</dt><dd>Late October 2025 to April 2026 (about six months, roughly 250 combined hours)</dd>
-  <dt>Status</dt><dd>The manuscript is in preparation (CVPR-format draft). It hasn't been submitted or published.</dd>
-  <dt>Role</dt><dd>Joint MSc research with Elora Drouilhet, supervised by Dr. Zhiguo Zeng (CentraleSupélec, LGI laboratory). I led the data pipeline, the supervised fine-tuning, the baselines and the paper draft. The <a href="#credits">credits</a> section has the full split.</dd>
+  <dt>Status</dt><dd>Finished in April 2026. The code, data and results are in the repository.</dd>
+  <dt>Role</dt><dd>Joint MSc research with Elora Drouilhet, supervised by Dr. Zhiguo Zeng (CentraleSupélec, LGI laboratory). I led the data pipeline, the supervised fine-tuning and the baselines. The <a href="#credits">credits</a> section has the full split.</dd>
   <dt>Code</dt><dd><a href="https://github.com/ADnocap/Reliability-Domain-Specific-LLM">github.com/ADnocap/Reliability-Domain-Specific-LLM</a>, public</dd>
 </dl>
 <div class="toc-wrap"><nav class="toc" aria-label="On this page"><p class="toc-h">On this page</p>
@@ -60,7 +60,7 @@
 
 <figure class="fig wide">
   <img src="../../assets/fig/reliability-llm/pipeline.png" alt="Five-stage pipeline diagram: textbook OCR and extraction to 56 seeds; generation with cross-model verification to 158 verified; cleaning to 215 numeric; hard generation and paraphrase augmentation to 866 examples; supervised fine-tuning of Qwen3-8B with QLoRA, then GRPO." width="1480" height="841" loading="lazy">
-  <figcaption>The data pipeline, taken from the manuscript. Blue boxes are dataset milestones, green ones are model-based generation or verification steps, and red is training. <span class="src">Source: manuscript draft, Figure 1.</span></figcaption>
+  <figcaption>The data pipeline. Blue boxes are dataset milestones, green ones are model-based generation or verification steps, and red is training. <span class="src">Source: the project's pipeline figure.</span></figcaption>
 </figure>
 
 <p>We learned two things about synthetic data along the way. The first is a <em>self-instruct ceiling</em>. Generators write problems inside their own competence, so baseline models scored 92 to 97% on the generated questions but only 68 to 76% on the textbook ones. Verification doesn't fix that. It only removes wrong answers. The second is that surface diversity beat difficulty: paraphrases helped more than harder questions did. The 65 hard questions moved accuracy by +2.0 points (p = 0.69) and the 586 paraphrases moved it by +18.6 (p = 0.002).</p>
@@ -88,13 +88,13 @@
 
 <figure class="fig">
   <div class="chart" data-chart="hbars" data-src="#frontier"></div>
-  <figcaption>Accuracy on reliability-engineering questions. The frontier models are zero-shot on a 500-question sample, scored over the answers they returned in a parseable form. The fine-tuned model is under 10-fold cross-validation. The protocols aren't like for like. <span class="src">Source: baseline runs in the repository and the manuscript's comparison table.</span></figcaption>
+  <figcaption>Accuracy on reliability-engineering questions. The frontier models are zero-shot on a 500-question sample, scored over the answers they returned in a parseable form. The fine-tuned model is under 10-fold cross-validation. The protocols aren't like for like. <span class="src">Source: the baseline runs in the repository (baselines/results) and the 10-fold cross-validation summary.</span></figcaption>
 </figure>
 <script type="application/json" id="frontier">{"categories":["Claude Sonnet 4.6, zero-shot","o3-mini, zero-shot (parseable)","Qwen3-8B fine-tuned, 10-fold CV","Gemini 3.1 Pro, zero-shot (parseable)","Qwen3-8B base"],"values":[92.4,86.4,82.2,76.4,63.6],"unit":"%","highlight":[2],"labelWidth":230,"xhead":"Model","yhead":"Accuracy","label":"Accuracy against frontier models"}</script>
 
 <h2 id="reinforcement-learning-and-a-caveat">Reinforcement learning, and a caveat</h2>
-<p>My co-author led the second stage, which applied GRPO with graded verifiable rewards and DAPO-style dynamic sampling on the 266 questions the base model solves inconsistently (one to three of four samples). It started from a separate fine-tuning checkpoint trained only on the other 600 questions (the ones screened out of the GRPO set), not from the 82.2% headline adapter. Accuracy on those 266 questions rose from 50.8% to 57.9% at step 80 (McNemar p = 0.056, not significant at 5%), then declined with more steps. Direct preference optimisation had hurt earlier (−1.7 points), and a first GRPO attempt with a judge-model reward added only +0.5.</p>
-<p>The +18.6 points is an in-distribution number, and that caveat belongs next to the headline. The cross-validation folds were shuffled at the question level, so paraphrases of a training question can sit in the test fold. On a 54-question independent holdout the picture is weaker. A fine-tuned adapter trained on a 600-question subset fell to 33.3% against the base model's 53.7% (p = 0.019). The headline adapter, evaluated greedily, scored 55.6% against 59.3%, which is within noise. The GRPO variants stayed near the base model on that holdout. We read this as a small-data forgetting problem. The manuscript's next revision, with grouped folds, has to settle it before we claim any transfer.</p>
+<p>My co-author led the second stage, which applied GRPO with graded verifiable rewards and DAPO-style dynamic sampling on the 266 questions the base model solves inconsistently (one to three of four samples). It started from a separate fine-tuning checkpoint trained only on the other 600 questions (the ones screened out of the GRPO set), not from the 82.2% headline adapter. Accuracy on those 266 questions rose from 50.8% to 57.9% at step 80 (McNemar p = 0.056, not significant at 5%), then declined with more steps. Direct preference optimisation had hurt earlier (68.0% against 69.8% for the base model, on the four folds that finished), and a first GRPO attempt with a judge-model reward added only +0.5.</p>
+<p>The +18.6 points is an in-distribution number, and that caveat belongs next to the headline. The cross-validation folds were shuffled at the question level, so paraphrases of a training question can sit in the test fold. On a 54-question independent holdout the picture is weaker. A fine-tuned adapter trained on a 600-question subset fell to 33.3% against the base model's 53.7% (p = 0.019). The headline adapter, evaluated greedily, scored 55.6% against 59.3%, which is within noise. The GRPO variants stayed near the base model on that holdout. We read this as a small-data forgetting problem. Grouped folds would settle it, and we don't claim any transfer until they've been run.</p>
 
 <h2 id="what-i-would-do-differently">What I would do differently</h2>
 <ul>
@@ -104,7 +104,7 @@
 </ul>
 
 <h2 id="credits">Credits</h2>
-<p>This was a joint MSc research project with Elora Drouilhet, supervised by Dr. Zhiguo Zeng at CentraleSupélec's LGI laboratory. I led the data pipeline (seed extraction, cross-model verification, paraphrase augmentation), the supervised fine-tuning, the frontier-model baselines and the cluster work, and I drafted the paper. The evaluation framework was shared work. My co-author led the reinforcement-learning stage, with my support.</p>
+<p>This was a joint MSc research project with Elora Drouilhet, supervised by Dr. Zhiguo Zeng at CentraleSupélec's LGI laboratory. I led the data pipeline (seed extraction, cross-model verification, paraphrase augmentation), the supervised fine-tuning, the frontier-model baselines and the cluster work. The evaluation framework was shared work. My co-author led the reinforcement-learning stage, with my support.</p>
 </main>
 <footer class="site-foot">
   <span>Alexandre Dalban &middot; <a href="mailto:alexandre.dalban@gmail.com">alexandre.dalban@gmail.com</a></span>

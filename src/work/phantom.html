@@ -17,9 +17,9 @@ scripts: charts
   <div class="stat"><span class="v">√10</span><span class="l">Sharpe inflation I found and corrected in my July 2026 audit</span></div>
 </div>
 <dl class="meta">
-  <dt>Dates</dt><dd>Built 1 to 5 April 2026 (eight model versions, paper draft, public release), then audited and corrected on 24 July 2026</dd>
-  <dt>Status</dt><dd>Backtest research that I never traded live. Single-author manuscript in preparation</dd>
-  <dt>Role</dt><dd>Solo: data, model, training on an A100 cluster via SLURM, evaluation, paper, audit. I built it with Claude Code.</dd>
+  <dt>Dates</dt><dd>Built 1 to 5 April 2026 (eight model versions and a public release), then audited and corrected on 24 July 2026</dd>
+  <dt>Status</dt><dd>Backtest research. A Polymarket strategy priced off its distributions had 21 live executions in April, too few to report a result</dd>
+  <dt>Role</dt><dd>Solo: data, model, training on an A100 cluster via SLURM, evaluation and the audit. I built it with Claude Code.</dd>
   <dt>Code</dt><dd><a href="https://github.com/ADnocap/phantom">github.com/ADnocap/phantom</a>, public, with the v8 checkpoint and the data release</dd>
 </dl>
 <!-- toc -->
@@ -31,7 +31,7 @@ scripts: charts
 
 <figure class="fig wide">
   <img src="../../assets/fig/phantom/architecture.png" alt="Block diagram: 120 by 6 OHLCV input, patch embedding into 24 patches, an 8-layer 512-dimensional Transformer encoder, a 2-layer cross-attention decoder fed by 30 horizon embeddings, a Student-t head, and 30 output distributions." width="1600" height="742" loading="lazy">
-  <figcaption>The v8 architecture. The decoder's 30 horizon queries read the encoded 120-day history once and emit one Student-t per horizon. <span class="src">Source: the figure from the manuscript draft, unaffected by the audit.</span></figcaption>
+  <figcaption>The v8 architecture. The decoder's 30 horizon queries read the encoded 120-day history once and emit one Student-t per horizon. <span class="src">Source: my architecture diagram, unaffected by the audit.</span></figcaption>
 </figure>
 
 <h2>Out-of-sample results</h2>
@@ -55,7 +55,7 @@ scripts: charts
 
 <figure class="fig">
   <div class="chart" data-chart="bars" data-src="#deciles"></div>
-  <figcaption>Mean realised relative return per 10-day holding window by forecast decile, D1 lowest to D10 highest. The ordering holds apart from a D5/D6 swap within noise. The payoff is asymmetric, since most of the spread sits in the bottom decile, which is also the hardest to short. <span class="src">Source: publication analysis of the v8 checkpoint, standard errors 0.08 to 0.15 percentage points.</span></figcaption>
+  <figcaption>Mean realised relative return per 10-day holding window by forecast decile, D1 lowest to D10 highest. The ordering holds apart from a D5/D6 swap within noise. The payoff is asymmetric, since most of the spread sits in the bottom decile, which is also the hardest to short. <span class="src">Source: the repository's analysis script on the v8 checkpoint, standard errors 0.08 to 0.15 percentage points.</span></figcaption>
 </figure>
 <script type="application/json" id="deciles">{"categories":["D1","D2","D3","D4","D5","D6","D7","D8","D9","D10"],"values":[-2.453,-0.534,-0.248,-0.225,0.196,0.170,0.339,0.625,0.871,1.215],"unit":"%","showValues":true,"decimals":2,"ylabel":"Mean return per 10-day window","xhead":"Decile","yhead":"Return per 10-day window","label":"Decile portfolio returns","height":260}</script>
 
@@ -63,7 +63,7 @@ scripts: charts
 
 <figure class="fig wide">
   <img src="../../assets/fig/phantom/distributional.png" alt="Three panels: a near-uniform PIT histogram at the 10-day horizon, a coverage calibration curve tracking the diagonal, and predicted sigma rising with horizon roughly as the square root of the horizon." width="1800" height="529" loading="lazy">
-  <figcaption>Distributional diagnostics at the 10-day horizon: PIT histogram, coverage against nominal level, and predicted scale by horizon against a √h reference. <span class="src">Source: manuscript figure. The calibration metrics aren't annualised and the audit didn't affect them.</span></figcaption>
+  <figcaption>Distributional diagnostics at the 10-day horizon: PIT histogram, coverage against nominal level, and predicted scale by horizon against a √h reference. <span class="src">Source: the evaluation's calibration plots. The calibration metrics aren't annualised and the audit didn't affect them.</span></figcaption>
 </figure>
 
 <h3>Against the baselines</h3>
@@ -71,7 +71,7 @@ scripts: charts
 
 <figure class="fig">
   <div class="chart" data-chart="hbars" data-src="#baselines"></div>
-  <figcaption>Rank IC at the 10-day horizon, Phantom against simple baselines on the same test set. The low-volatility sort beats it on raw IC. <span class="src">Source: manuscript baseline table, post-audit.</span></figcaption>
+  <figcaption>Rank IC at the 10-day horizon, Phantom against simple baselines on the same test set. The low-volatility sort beats it on raw IC. <span class="src">Source: the baseline comparison in the evaluation, post-audit.</span></figcaption>
 </figure>
 <script type="application/json" id="baselines">{"categories":["Low volatility sort","Phantom","Mean reversion, 1 day","Mean reversion, 5 days","Random","Momentum, 5 days","Momentum, 10 days","Momentum, 20 days","Volume, 5 days"],"values":[0.165,0.124,0.009,0.007,0.001,-0.007,-0.012,-0.016,-0.046],"highlight":[1],"decimals":3,"labelWidth":170,"xhead":"Signal","yhead":"Rank IC (10d)","label":"Rank IC of Phantom versus baselines"}</script>
 
@@ -81,7 +81,7 @@ scripts: charts
   The April release reported a long-short Sharpe of <span class="old">11.8 to 13.0</span>, a <span class="old">925%</span> annualised return, a <span class="old">"74.7% daily win rate"</span> and a <span class="old">336 basis-point</span> break-even cost. The long-short series was made of overlapping 10-day returns sampled daily, and I'd annualised it as if each observation were a day, which inflates Sharpe by about √10. The corrected numbers are a gross, horizon-corrected Sharpe of about 4.1 (an upper bound), about 93% annualised gross, and a break-even of about 34 basis points one way. The 74.7% is the share of positive 10-day windows.
 </div>
 <p>I found this three and a half months after the release, while preparing the work for applications. The Sharpe looked too high to believe, so I audited the evaluation code and traced it to the long-short series being 10-day forward returns sampled daily and annualised as if each observation were a day. The fix in the repository is a √10 rescale of that overlapping-series Sharpe, which is equivalent up to residual autocorrelation to recomputing on non-overlapping 10-day blocks.</p>
-<p>The same pass documented some other problems. The universe is survivor-biased (I only fetched pairs still trading in March 2026, so coins delisted during the test period are missing from training, testing and from the cross-sectional mean itself). The short leg is partly unimplementable, because much of the bottom quintile has no margin or perpetual-futures market. And the Newey-West lag I used under-corrects for the MA(9) overlap, though conservative lags still leave the IC t-statistic above 6. I corrected the README, paper draft, experiment log and evaluation code, and left the old numbers visible as errata.</p>
+<p>The same pass documented some other problems. The universe is survivor-biased (I only fetched pairs still trading in March 2026, so coins delisted during the test period are missing from training, testing and from the cross-sectional mean itself). The short leg is partly unimplementable, because much of the bottom quintile has no margin or perpetual-futures market. And the Newey-West lag I used under-corrects for the MA(9) overlap, though conservative lags still leave the IC t-statistic above 6. I corrected the README, the experiment log and the evaluation code, and left the old numbers visible as errata.</p>
 <p>After realistic frictions I think a net Sharpe of 1 to 2 is plausible. The cost table below is the corrected one. The results figures in the repository's plots directory were generated before the audit and still carry pre-correction labels. That's why the IC, decile and baseline charts on this page are drawn from the underlying data instead of embedding those figures. The architecture and calibration figures above contain no annualised numbers and are unaffected.</p>
 
 <div class="scroll">
@@ -113,7 +113,7 @@ scripts: charts
 
 <h2 id="could-it-be-traded-a-binary-option-test">A binary-option test of whether it could be traded</h2>
 <p>In a two-day follow-up I asked whether the same distributions price Polymarket's daily "BTC above $X" markets better than the market does. I used 7,982 resolved BTC and ETH markets from August 2025 to March 2026, with each side's price read from its own order book. At four to six days to expiry the model's probabilities were better calibrated than the ask price (root-mean-square calibration error 0.035 against the market's 0.068). At two to three days they were overconfident by about five points, which set a minimum-horizon rule.</p>
-<p>Buying the side with edge and holding to settlement, with entry prices between 0.15 and 0.85, a 20% edge cap and ETH range markets excluded, turned $1,000 into $3,885 in the 7-month backtest (68% win rate, 1,120 trades, weekly Sharpe 2.05, drawdown −48%). The trading page quotes a delta-aware-sizing variant of the same backtest without the edge cap: $3,925, 1,118 trades, 67% win rate, weekly Sharpe 2.2, drawdown −36%.</p>
+<p>Buying the side with edge and holding to settlement, with entry prices between 0.15 and 0.85, a 20% edge cap and ETH range markets excluded, turned $1,000 into $3,885 in the 7-month backtest (68% win rate, 1,120 trades, weekly Sharpe 2.05, drawdown −48%). The trading page quotes a delta-aware-sizing variant of the same backtest: 1,118 trades, 67% win rate, weekly Sharpe 2.2, drawdown −36%. That variant has no edge cap and ends at $3,925.</p>
 <p>The caveats are big enough that I present this as a calibration result, not a strategy. It's one seven-month window during which BTC fell about 42% while the strategy was structurally short BTC (it mostly buys NO on "above" markets). The backtest assumes fills at the full displayed ask and values positions at cost until settlement. The most instructive caveat is an uncapped variant of the run (no 20% edge cap, $4,714 at the ask). Executed as mid-price limit orders it lost money to adverse selection, with the win rate going from 67% to 54% and the account ending at $787. I quote the capped run above because the cap is in the documented parameters.</p>
 
 <figure class="fig wide">
